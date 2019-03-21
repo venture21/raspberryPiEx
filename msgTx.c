@@ -3,22 +3,12 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-#include <termios.h>
+#include "mymsg.h"
 
 // For IPC function
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
-
-
-struct myData
-{
-	long int msgType; //default
-	char name[20];
-	int height;
-	int weight;
-};
-
 
 
 int main(void)
@@ -43,22 +33,24 @@ int main(void)
 	{
 		printf("Name:");
 		fgets(person[personNum].name, sizeof(person[personNum].name), stdin);
-		printf("Height:");
-		scanf("%d", &person[personNum].height);
-		printf("Weight:");
-		scanf("%d", &person[personNum].weight);
-		person[personNum].msgType = 1;
-
-		//입력 버퍼 비우기
-		while (getchar() != '\n');
-
-		//getchar();
 
 		if (!strncmp(person[personNum].name, "end", 3))
 		{
 			person[personNum].msgType = 2;
 			running = 0;
 		}
+		else
+		{
+			printf("Height:");
+			scanf("%d", &person[personNum].height);
+			printf("Weight:");
+			scanf("%d", &person[personNum].weight);
+			person[personNum].msgType = 1;
+
+			//입력 버퍼 비우기
+			while (getchar() != '\n');
+		}
+
 
 		//step2. msgsnd
 		if (msgsnd(msgid, &person[personNum], sizeof(person) - sizeof(long), 0) == -1)
