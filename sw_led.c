@@ -10,6 +10,7 @@
 #define SW2		3 //wPin 3
 #define LED		2 //wPin 2
 
+#define DEBUG
 
 void pinAssign(void)
 {
@@ -18,43 +19,49 @@ void pinAssign(void)
 	pinMode(SW2, INPUT);
 }
 
-int main()
+
+int waitStart(struct timeval *start_tv)
 {
-	//time_t start_t, end_t;
-	struct timeval start_tv, stop_tv, diff_tv;
-	wiringPiSetup();
-	char val1, val2;
-
-	pinAssign();
-
 	// SW1이 눌리면 START
-	while(digitalRead(SW1));
+	while (digitalRead(SW1));
 
-	if ((gettimeofday(&start_tv, NULL)) == -1)
+	// START시간 저장
+	if ((gettimeofday(start_tv, NULL)) == -1)
 	{
 		perror("gettimeofday() call error");
 		return -1;
 	}
+}
+
+int main()
+{
+	//time_t start_t, end_t;
+	struct timeval start_tv, stop_tv, diff_tv;
+	char val1, val2;
+	int retValue;
+
+	wiringPiSetup();
+
+	pinAssign();
+
+	if (waitStart(&start_tv) < 0)
+		return -1;
+
+#ifdef DEBUG
+	printf("Start Time\n");
+	printf("%ld.%ld\n", start_tv.tv_sec, start_tv.tv_usec);
+#endif
 
 	while (1)
 	{
-		/*
-printf("Start Time");
-printf("tv_sec=%ld,", start_tv.tv_sec);
-printf("tv_usec=%ld\n", start_tv.tv_usec);
-*/
-		usleep(10000);
+		usleep(500);
 
 		if ((gettimeofday(&stop_tv, NULL)) == -1)
 		{
 			perror("gettimeofday() call error");
 			return -1;
 		}
-		/*
-		printf("Stop Time");
-		printf("tv_sec=%ld,", stop_tv.tv_sec);
-		printf("tv_usec=%ld\n", stop_tv.tv_usec);
-		*/
+
 		if (start_tv.tv_usec > stop_tv.tv_usec)
 		{
 			stop_tv.tv_sec--;
@@ -68,8 +75,8 @@ printf("tv_usec=%ld\n", start_tv.tv_usec);
 		}
 
 		//printf("DIFF Time");
-		printf("Time=%ld.", diff_tv.tv_sec);
-		printf("%ld\r", diff_tv.tv_usec);
+		printf("Time:%ld.%ld\r", diff_tv.tv_sec, diff_tv.tv_usec);
+		fflush(stdout);
 	}
 	/*
 
