@@ -14,7 +14,7 @@
 int main(void)
 {
 	int running = 1;
-	struct myData person[10];
+	myData person[10];
 	int msgid;
 	int personNum=0;
 	//char buffer[BUFSIZ];
@@ -53,7 +53,7 @@ int main(void)
 
 
 		//step2. msgsnd
-		if (msgsnd(msgid, &person[personNum], sizeof(person) - sizeof(long), 0) == -1)
+		if (msgsnd(msgid, &person[personNum], sizeof(myData) - sizeof(long), 0) == -1)
 		{
 			//메시지가 정상적으로 전달되지 않은 경우
 			fprintf(stderr, "Error:msgsnd failed : %d\n", errno);
