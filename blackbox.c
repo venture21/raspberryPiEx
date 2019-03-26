@@ -4,11 +4,13 @@
 #include <string.h>
 #include <dirent.h>
 #include <time.h>
+#include <errno.h>
 #include <sys/stat.h>
 #include <sys/vfs.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/time.h>
+
 
 #define DEBUG
 #define VIDEOTIME	60000	//unit:msec
@@ -139,7 +141,7 @@ int main(int argc, char **argv)
 		strftime(dirNamebuf, sizeof(dirNamebuf), "%Y%m%d%H", tm);
 
 		//파일명 생성
-		strftime(tempbuf, sizeof(tempbuf), "%Y%m%d_%H%M%S.h264");
+		strftime(tempbuf, sizeof(tempbuf), "%Y%m%d_%H%M%S.h264", tm);
 		sprintf(fileNamebuf, "%s/%s", dirNamebuf, tempbuf);
 
 #ifdef DEBUG
@@ -172,16 +174,32 @@ int main(int argc, char **argv)
 		dfclose(MP);
 
 		//현재 시간으로 디렉토리 생성
-		mkdir(dirNamebuf, 0666);
+		if (mkdir(dirNamebuf, 0666) == -1)
+		{
+			if (errno != EEXIST)
+				return -1;
+		}
 		chmod(dirNamebuf, 0777);
 
-		sprintf(cmdbuf, "raspvid -w %d -h %d -t %d -o %s", \
+		sprintf(cmdbuf, "raspivid -w %d -h %d -t %d -o %s", \
 				width, height, VIDEOTIME, fileNamebuf);
 #ifdef DEBUG
 		printf("cmdbuf:%s\n", cmdbuf);
 #endif
-		pause();
-	
+		pid = fork();
+		
+		//부모 프로세스
+		if (pid > 0)
+		{
+			// none
+		}
+		else if (pid == 0)
+		{
+			system(cmdbuf);
+			exit(1);
+		}
+
+		wait(&status);
 	}
 
 
