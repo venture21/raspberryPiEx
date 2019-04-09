@@ -1,0 +1,1 @@
+cmd_/home/pi/raspberryPiEx/DD/ex2/gpioModule.ko := ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/pi/raspberryPiEx/DD/ex2/gpioModule.ko /home/pi/raspberryPiEx/DD/ex2/gpioModule.o /home/pi/raspberryPiEx/DD/ex2/gpioModule.mod.o ;  true

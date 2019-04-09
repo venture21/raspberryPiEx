@@ -1,8 +1,8 @@
-cmd_/home/pi/DD/ex1/helloModule.o := gcc -Wp,-MD,/home/pi/DD/ex1/.helloModule.o.d  -nostdinc -isystem /usr/lib/gcc/arm-linux-gnueabihf/6/include -I./arch/arm/include -I./arch/arm/include/generated  -I./include -I./arch/arm/include/uapi -I./arch/arm/include/generated/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/kconfig.h -D__KERNEL__ -mlittle-endian -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -fshort-wchar -Werror-implicit-function-declaration -Wno-format-security -std=gnu89 -fno-PIE -fno-dwarf2-cfi-asm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -fno-ipa-sra -mabi=aapcs-linux -mfpu=vfp -funwind-tables -marm -D__LINUX_ARM_ARCH__=7 -march=armv7-a -msoft-float -Uarm -fno-delete-null-pointer-checks -Wno-frame-address -O2 --param=allow-store-data-races=0 -DCC_HAVE_ASM_GOTO -Wframe-larger-than=1024 -fno-stack-protector -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-omit-frame-pointer -fno-optimize-sibling-calls -fno-var-tracking-assignments -pg -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow -fno-merge-all-constants -fmerge-constants -fno-stack-check -fconserve-stack -Werror=implicit-int -Werror=strict-prototypes -Werror=date-time -Werror=incompatible-pointer-types -Werror=designated-init  -DMODULE  -DKBUILD_BASENAME='"helloModule"'  -DKBUILD_MODNAME='"helloModule"' -c -o /home/pi/DD/ex1/.tmp_helloModule.o /home/pi/DD/ex1/helloModule.c
+cmd_/home/pi/raspberryPiEx/DD/ex1/helloModule.o := gcc -Wp,-MD,/home/pi/raspberryPiEx/DD/ex1/.helloModule.o.d  -nostdinc -isystem /usr/lib/gcc/arm-linux-gnueabihf/6/include -I./arch/arm/include -I./arch/arm/include/generated  -I./include -I./arch/arm/include/uapi -I./arch/arm/include/generated/uapi -I./include/uapi -I./include/generated/uapi -include ./include/linux/kconfig.h -D__KERNEL__ -mlittle-endian -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common -fshort-wchar -Werror-implicit-function-declaration -Wno-format-security -std=gnu89 -fno-PIE -fno-dwarf2-cfi-asm -fno-omit-frame-pointer -mapcs -mno-sched-prolog -fno-ipa-sra -mabi=aapcs-linux -mfpu=vfp -funwind-tables -marm -D__LINUX_ARM_ARCH__=7 -march=armv7-a -msoft-float -Uarm -fno-delete-null-pointer-checks -Wno-frame-address -O2 --param=allow-store-data-races=0 -DCC_HAVE_ASM_GOTO -Wframe-larger-than=1024 -fno-stack-protector -Wno-unused-but-set-variable -Wno-unused-const-variable -fno-omit-frame-pointer -fno-optimize-sibling-calls -fno-var-tracking-assignments -pg -Wdeclaration-after-statement -Wno-pointer-sign -fno-strict-overflow -fno-merge-all-constants -fmerge-constants -fno-stack-check -fconserve-stack -Werror=implicit-int -Werror=strict-prototypes -Werror=date-time -Werror=incompatible-pointer-types -Werror=designated-init  -DMODULE  -DKBUILD_BASENAME='"helloModule"'  -DKBUILD_MODNAME='"helloModule"' -c -o /home/pi/raspberryPiEx/DD/ex1/.tmp_helloModule.o /home/pi/raspberryPiEx/DD/ex1/helloModule.c
 
-source_/home/pi/DD/ex1/helloModule.o := /home/pi/DD/ex1/helloModule.c
+source_/home/pi/raspberryPiEx/DD/ex1/helloModule.o := /home/pi/raspberryPiEx/DD/ex1/helloModule.c
 
-deps_/home/pi/DD/ex1/helloModule.o := \
+deps_/home/pi/raspberryPiEx/DD/ex1/helloModule.o := \
   include/linux/compiler_types.h \
     $(wildcard include/config/have/arch/compiler/h.h) \
     $(wildcard include/config/enable/must/check.h) \
@@ -468,6 +468,6 @@ deps_/home/pi/DD/ex1/helloModule.o := \
     $(wildcard include/config/modules/use/elf/rel.h) \
     $(wildcard include/config/modules/use/elf/rela.h) \
 
-/home/pi/DD/ex1/helloModule.o: $(deps_/home/pi/DD/ex1/helloModule.o)
+/home/pi/raspberryPiEx/DD/ex1/helloModule.o: $(deps_/home/pi/raspberryPiEx/DD/ex1/helloModule.o)
 
-$(deps_/home/pi/DD/ex1/helloModule.o):
+$(deps_/home/pi/raspberryPiEx/DD/ex1/helloModule.o):
