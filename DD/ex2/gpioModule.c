@@ -81,7 +81,7 @@ static ssize_t gpio_write(struct file *fil, const char *buff, size_t len, loff_t
 	memset(msg, 0, BLK_SIZE);
 
 	count = copy_from_user(msg, buff, len);
-	gpio_set_value(GPIO_LED, (!strcmp(msg,"0")));
+	gpio_set_value(GPIO_LED, (strcmp(msg,"0")));
 	printk(KERN_INFO "GPIO Device write:%s\n",msg);
 	return count;
 }
@@ -114,6 +114,7 @@ static int __init initModule(void)
 	printk(KERN_INFO "'sudo mknod /dev/%s c %d 0'\n", GPIO_DEVICE, GPIO_MAJOR);
 	printk(KERN_INFO "'sudo chmod 666 /dev/%s'\n", GPIO_DEVICE);
 	
+	// 현재 GPIO_LED핀이 사용중인지 확인하고 사용권한 획득
 	err=gpio_request(GPIO_LED, "LED");
 	if(err==-EBUSY)
 	{
@@ -132,6 +133,9 @@ static void __exit cleanupModule(void)
 	dev_t devno = MKDEV(GPIO_MAJOR, GPIO_MINOR);
 	
 	gpio_direction_output(GPIO_LED, 0);
+
+	//gpio_request()에서 받아온 사용권한을 반납한다.
+	gpio_free(GPIO_LED);
 	
 	// 1.문자 디바이스의 등록을 해제한다.
 	unregister_chrdev_region(devno,1);
@@ -139,9 +143,6 @@ static void __exit cleanupModule(void)
 	// 2.문자 디바이스의 구조체를 삭제한다.
 	cdev_del(&gpio_cdev);
 	
-	if(gpio)
-		iounmap(gpio);
-		
 	printk("Good-bye!\n");
 }
 
