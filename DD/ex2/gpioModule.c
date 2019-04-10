@@ -6,7 +6,7 @@
 #include <linux/cdev.h>
 #include <linux/module.h>
 #include <linux/io.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/gpio.h>
@@ -75,7 +75,7 @@ static ssize_t gpio_read(struct file *fil, char *buff, size_t len, loff_t *off)
 }
 
 
-static ssize_t gpio_write(struct file *fil, char *buff, size_t len, loff_t *off)
+static ssize_t gpio_write(struct file *fil, const char *buff, size_t len, loff_t *off)
 {
 	int count;
 	memset(msg, 0, BLK_SIZE);

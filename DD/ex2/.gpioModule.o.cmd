@@ -705,6 +705,8 @@ deps_/home/pi/raspberryPiEx/DD/ex2/gpioModule.o := \
     $(wildcard include/config/generic/iomap.h) \
     $(wildcard include/config/virt/to/bus.h) \
   include/linux/vmalloc.h \
+  include/linux/uaccess.h \
+  include/linux/kasan-checks.h \
   arch/arm/include/asm/uaccess.h \
     $(wildcard include/config/cpu/sw/domain/pan.h) \
     $(wildcard include/config/cpu/use/domains.h) \
@@ -714,6 +716,98 @@ deps_/home/pi/raspberryPiEx/DD/ex2/gpioModule.o := \
     $(wildcard include/config/cpu/cp15/mmu.h) \
   arch/arm/include/generated/asm/extable.h \
   include/asm-generic/extable.h \
+  include/linux/gpio.h \
+    $(wildcard include/config/gpiolib.h) \
+    $(wildcard include/config/arch/have/custom/gpio/h.h) \
+  arch/arm/include/asm/gpio.h \
+    $(wildcard include/config/arch/nr/gpio.h) \
+  include/asm-generic/gpio.h \
+  include/linux/of.h \
+    $(wildcard include/config/sparc.h) \
+    $(wildcard include/config/of/dynamic.h) \
+    $(wildcard include/config/attach/node.h) \
+    $(wildcard include/config/detach/node.h) \
+    $(wildcard include/config/add/property.h) \
+    $(wildcard include/config/remove/property.h) \
+    $(wildcard include/config/update/property.h) \
+    $(wildcard include/config/of/numa.h) \
+    $(wildcard include/config/no/change.h) \
+    $(wildcard include/config/change/add.h) \
+    $(wildcard include/config/change/remove.h) \
+    $(wildcard include/config/of/resolve.h) \
+    $(wildcard include/config/of/overlay.h) \
+  include/linux/mod_devicetable.h \
+  include/linux/property.h \
+  include/linux/fwnode.h \
+  include/linux/gpio/driver.h \
+    $(wildcard include/config/gpio/generic.h) \
+    $(wildcard include/config/gpiolib/irqchip.h) \
+    $(wildcard include/config/of/gpio.h) \
+  include/linux/irq.h \
+    $(wildcard include/config/generic/irq/effective/aff/mask.h) \
+    $(wildcard include/config/generic/irq/ipi.h) \
+    $(wildcard include/config/irq/domain/hierarchy.h) \
+    $(wildcard include/config/generic/irq/migration.h) \
+    $(wildcard include/config/generic/pending/irq.h) \
+    $(wildcard include/config/hardirqs/sw/resend.h) \
+    $(wildcard include/config/generic/irq/legacy/alloc/hwirq.h) \
+    $(wildcard include/config/generic/irq/legacy.h) \
+  include/linux/irqhandler.h \
+  include/linux/irqreturn.h \
+  include/linux/irqnr.h \
+  include/uapi/linux/irqnr.h \
+  include/linux/slab.h \
+    $(wildcard include/config/debug/slab.h) \
+    $(wildcard include/config/failslab.h) \
+    $(wildcard include/config/have/hardened/usercopy/allocator.h) \
+    $(wildcard include/config/slab.h) \
+    $(wildcard include/config/slub.h) \
+  include/linux/kmemleak.h \
+    $(wildcard include/config/debug/kmemleak.h) \
+  include/linux/kasan.h \
+  arch/arm/include/asm/irq.h \
+    $(wildcard include/config/sparse/irq.h) \
+    $(wildcard include/config/multi/irq/handler.h) \
+  arch/arm/include/generated/asm/irq_regs.h \
+  include/asm-generic/irq_regs.h \
+  include/linux/irqdesc.h \
+    $(wildcard include/config/irq/preflow/fasteoi.h) \
+    $(wildcard include/config/proc/fs.h) \
+    $(wildcard include/config/generic/irq/debugfs.h) \
+    $(wildcard include/config/handle/domain/irq.h) \
+  arch/arm/include/asm/hw_irq.h \
+  include/linux/irqchip/chained_irq.h \
+  include/linux/irqdomain.h \
+    $(wildcard include/config/irq/domain.h) \
+  include/linux/pinctrl/pinctrl.h \
+    $(wildcard include/config/generic/pinconf.h) \
+  include/linux/pinctrl/pinconf-generic.h \
+    $(wildcard include/config/bias/bus/hold.h) \
+    $(wildcard include/config/bias/disable.h) \
+    $(wildcard include/config/bias/high/impedance.h) \
+    $(wildcard include/config/bias/pull/down.h) \
+    $(wildcard include/config/bias/pull/pin/default.h) \
+    $(wildcard include/config/bias/pull/up.h) \
+    $(wildcard include/config/drive/open/drain.h) \
+    $(wildcard include/config/drive/open/source.h) \
+    $(wildcard include/config/drive/push/pull.h) \
+    $(wildcard include/config/drive/strength.h) \
+    $(wildcard include/config/input/debounce.h) \
+    $(wildcard include/config/input/enable.h) \
+    $(wildcard include/config/input/schmitt.h) \
+    $(wildcard include/config/input/schmitt/enable.h) \
+    $(wildcard include/config/low/power/mode.h) \
+    $(wildcard include/config/output/enable.h) \
+    $(wildcard include/config/output.h) \
+    $(wildcard include/config/power/source.h) \
+    $(wildcard include/config/sleep/hardware/state.h) \
+    $(wildcard include/config/slew/rate.h) \
+    $(wildcard include/config/end.h) \
+    $(wildcard include/config/max.h) \
+    $(wildcard include/config/debug/fs.h) \
+  include/linux/pinctrl/machine.h \
+  include/linux/gpio/consumer.h \
+    $(wildcard include/config/gpio/sysfs.h) \
 
 /home/pi/raspberryPiEx/DD/ex2/gpioModule.o: $(deps_/home/pi/raspberryPiEx/DD/ex2/gpioModule.o)
 
