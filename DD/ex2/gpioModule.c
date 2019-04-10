@@ -101,7 +101,20 @@ static int __init initModule(void)
 
 static void __exit cleanupModule(void)
 {
-	printk("Called cleanupModule()\n");
+	dev_t devno = MKDEV(GPIO_MAJOR, GPIO_MINOR);
+	
+	GPIO_CLR(GPIO_LED);
+	
+	// 1.문자 디바이스의 등록을 해제한다.
+	unregister_chrdev_region(devno,1);
+	
+	// 2.문자 디바이스의 구조체를 삭제한다.
+	cdev_del(&gpio_cdev);
+	
+	if(gpio)
+		iounmap(gpio);
+		
+	printk("Good-bye!\n");
 }
 
 
