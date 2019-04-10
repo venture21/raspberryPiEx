@@ -27,6 +27,7 @@ int main(int argc, char** argv)
 	sleep(1);
 	count=read(fd,buf,10);
 	printf("Read data:%s\n",buf);
+	sleep(10);
 	close(fd);
 	return 0;
 

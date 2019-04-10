@@ -172,16 +172,21 @@ static void __exit cleanupModule(void)
 {
 	dev_t devno = MKDEV(GPIO_MAJOR, GPIO_MINOR);
 	
+	// 1.문자 디바이스의 등록을 해제한다.
+	unregister_chrdev_region(devno,1);
+
+	// 2.문자 디바이스의 구조체를 삭제한다.
+	cdev_del(&gpio_cdev);
+
 	gpio_direction_output(GPIO_LED, 0);
+
+	//request_irq에서 받아온 사용권한을 반납한다.
+	free_irq(switch_irq, NULL);
 
 	//gpio_request()에서 받아온 사용권한을 반납한다.
 	gpio_free(GPIO_LED);
 	gpio_free(GPIO_SW);
-	// 1.문자 디바이스의 등록을 해제한다.
-	unregister_chrdev_region(devno,1);
 	
-	// 2.문자 디바이스의 구조체를 삭제한다.
-	cdev_del(&gpio_cdev);
 	
 	printk("Good-bye!\n");
 }
