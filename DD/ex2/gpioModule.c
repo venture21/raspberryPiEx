@@ -9,51 +9,87 @@
 #include <asm/uaccess.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
+#include <linux/gpio.h>
 
-#define GPIO_MAJOR 200
-#define GPIO_MINOR 0
-#define GPIO_DEVICE "gpioled"
-#define GPIO_LED   18
-
-//Raspberry Pi3 PHYSICAL I/O Peripherals BaseAddr
-#define BCM_IO_BASE 0x3F000000
-
-//GPIO_BaseAddr
-#define GPIO_BASE  (BCM_IO_BASE + 0x200000)
-
-//GPIO Function Select Register 0 ~ 5
-#define GPIO_IN(g)  (*(gpio+((g)/10)) &=~(7<<(((g)%10)*3)))
-#define GPIO_OUT(g) {(*(gpio+((g)/10))&=~(7<<(((g)%10)*3))); \
-		     (*(gpio+((g)/10)) |=(1<<(((g)%10)*3)));}
-
-//GPIO Pin Output Set 0 / Clr 0
-//                      addr     value 
-#define GPIO_SET(g)  (*(gpio+7)=(1<<g))
-#define GPIO_CLR(g)  (*(gpio+10)=(1<<g))
-
-#define GPIO_GET(g)  (*(gpio+13)&1<<g)
-#define GPIO_SIZE 0xB4
-
+#define GPIO_MAJOR	200
+#define GPIO_MINOR	0
+#define GPIO_DEVICE	"gpioled"
+#define GPIO_LED	18
+#define BLK_SIZE	100
 //#define DEBUG
 
 struct cdev gpio_cdev;
 volatile unsigned int *gpio;
+static char msg[BLK_SIZE]={0};
+
+
+static int gpio_open(struct inode *, struct file *);
+static int gpio_close(struct inode *, struct file *);
+static ssize_t gpio_read(struct file *, char *buff, size_t, loff_t *);
+static ssize_t gpio_write(struct file *, const char *, size_t, loff_t *);
 
 static struct file_operations gpio_fops={
 	.owner   = THIS_MODULE,
-//	.read    = gpio_read,
-//	.write   = gpio_write,
-//	.open    = gpio_open,
-//	.release = gpio_close,
+	.read    = gpio_read,
+	.write   = gpio_write,
+	.open    = gpio_open,
+	.release = gpio_close,
 };
 	
+static int gpio_open(struct inode *inod, struct file *fil)
+{
+	//모듈의 사용 카운트를 증가 시킨다.
+	try_module_get(THIS_MODULE);
+	printk(KERN_INFO "GPIO Device opened\n");
+	return 0;
+}	
 
+
+static int gpio_close(struct inode *inod, struct file *fil)
+{
+	//모듈의 사용 카운트를 감소 시킨다.
+	module_put(THIS_MODULE);
+	printk(KERN_INFO " GPIO Device closed\n");
+	return 0;
+}
+
+static ssize_t gpio_read(struct file *fil, char *buff, size_t len, loff_t *off)
+{
+	int count;
+	// <linux/gpio.h>파일에 있는 gpio_get_value()를 통해
+	// gpio의 상태값을 읽어온다. 
+	if(gpio_get_value(GPIO_LED))
+		msg[0]='1';
+	else
+		msg[1]='0';
+
+	// 이 데이터가 커널에서 온 데이터임을 표기한다.
+	strcat(msg," from kernel");
+
+	//커널영역에 있는 msg문자열을 유저영역의 buff주소로 복사 
+	count = copy_to_user(buff,msg,strlen(msg)+1);
+
+	printk(KERN_INFO "GPIO Device read:%s\n",msg);
+	
+	return count;	
+}
+
+
+static ssize_t gpio_write(struct file *fil, char *buff, size_t len, loff_t *off)
+{
+	int count;
+	memset(msg, 0, BLK_SIZE);
+
+	count = copy_from_user(msg, buff, len);
+	gpio_set_value(GPIO_LED, (!strcmp(msg,"0")));
+	printk(KERN_INFO "GPIO Device write:%s\n",msg);
+	return count;
+}
 
 static int __init initModule(void)
 {
 	dev_t devno;
 	int err;
-	static void *map;
 	int count;
 	
 	printk("Called initModule()\n");
@@ -78,24 +114,16 @@ static int __init initModule(void)
 	printk(KERN_INFO "'sudo mknod /dev/%s c %d 0'\n", GPIO_DEVICE, GPIO_MAJOR);
 	printk(KERN_INFO "'sudo chmod 666 /dev/%s'\n", GPIO_DEVICE);
 	
-	//4. 물리메모리 번지로 인자값을 전달하면 가상메모리 번지를 리턴한다.
-	map = ioremap(GPIO_BASE, GPIO_SIZE);
-	
-	if(!map)
+	err=gpio_request(GPIO_LED, "LED");
+	if(err==-EBUSY)
 	{
-		printk(KERN_INFO "Error:mapping GPIO memory\n");
-		iounmap(map);
-		return -EBUSY;
-	} 
+		printk(KERN_INFO "Error gpio_request\n");
+		return -1;
+	}
 
-#ifdef DEBUG
-	printk(KERN_INFO "devno=%d",devno);
-#endif
+	gpio_direction_output(GPIO_LED, 0);
 	
-	gpio = (volatile unsigned int*)map;
 	
-	GPIO_OUT(GPIO_LED);
-	GPIO_SET(GPIO_LED);
 	return 0;
 }
 
@@ -103,7 +131,7 @@ static void __exit cleanupModule(void)
 {
 	dev_t devno = MKDEV(GPIO_MAJOR, GPIO_MINOR);
 	
-	GPIO_CLR(GPIO_LED);
+	gpio_direction_output(GPIO_LED, 0);
 	
 	// 1.문자 디바이스의 등록을 해제한다.
 	unregister_chrdev_region(devno,1);
