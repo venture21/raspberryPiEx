@@ -10,6 +10,18 @@ int g = 29;//GPIO21
 int dp = 22;//GPIO6
 int i;
 
+void allOne()
+{
+	digitalWrite(a, LOW);
+	digitalWrite(b, LOW);
+	digitalWrite(c, LOW);
+	digitalWrite(d, LOW);
+	digitalWrite(e, LOW);
+	digitalWrite(f, LOW);
+	digitalWrite(g, LOW);
+	digitalWrite(dp, LOW);
+}
+
 void digital_0()//0
 {
 	digitalWrite(a, LOW);
@@ -129,6 +141,8 @@ int main()
 	}
 	while (1)
 	{
+		//allOne();
+		
 		digital_0();//0
 		delay(1000);
 		digital_1();//1
@@ -149,5 +163,6 @@ int main()
 		delay(1000);
 		digital_9();//9
 		delay(1000);
+		
 	}
 }
