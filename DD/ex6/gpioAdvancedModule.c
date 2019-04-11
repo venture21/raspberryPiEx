@@ -48,6 +48,12 @@ static struct file_operations gpio_fops={
 	.release = gpio_close,
 };
 
+enum hrtimer_restart myTimer_callback(struct hrtimer *timer)
+{
+	printk(KERN_INFO "myTimer_callback\n");
+	flag=0;
+	return HRTIMER_NORESTART;
+}
 
 static irqreturn_t isr_func(int irq, void *data)
 {
@@ -59,11 +65,12 @@ static irqreturn_t isr_func(int irq, void *data)
 	static struct siginfo sinfo;
 	if(flag==0)
 	{
+		flag=1;
 		//kitme_set(설정초,설정나노초);
 		ktime = ktime_set(0,expireTime);
 		//hrtimer_init(타이머구조체 주소값, 등록할 타이머값,상대시간으로설정)
 		hrtimer_init(&hr_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-		hrtimer.function=&myTimer_callback;
+		hr_timer.function=&myTimer_callback;
 		printk(KERN_INFO "startTime\n");
 		hrtimer_start(&hr_timer, ktime, HRTIMER_MODE_REL);
 
@@ -241,7 +248,17 @@ static int __init initModule(void)
 
 static void __exit cleanupModule(void)
 {
+	int ret;
+
 	dev_t devno = MKDEV(GPIO_MAJOR, GPIO_MINOR);
+
+	ret=hrtimer_cancel(&hr_timer);
+	if(ret)
+		printk(KERN_INFO "myTimer was still in use\n");
+	
+	printk(KERN_INFO "myTimer is uninstall\n");
+
+
 
 	// 1.문자 디바이스의 등록을 해제한다.
 	unregister_chrdev_region(devno,1);
