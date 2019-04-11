@@ -1,0 +1,1 @@
+cmd_/home/pi/raspberryPiEx/DD/ex4/gpiotimerModule.ko := ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/pi/raspberryPiEx/DD/ex4/gpiotimerModule.ko /home/pi/raspberryPiEx/DD/ex4/gpiotimerModule.o /home/pi/raspberryPiEx/DD/ex4/gpiotimerModule.mod.o ;  true

@@ -1,0 +1,1 @@
+cmd_/home/pi/raspberryPiEx/DD/hrTimer/hrTimer.ko := ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /home/pi/raspberryPiEx/DD/hrTimer/hrTimer.ko /home/pi/raspberryPiEx/DD/hrTimer/hrTimer.o /home/pi/raspberryPiEx/DD/hrTimer/hrTimer.mod.o ;  true
