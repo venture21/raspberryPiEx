@@ -60,7 +60,7 @@ static irqreturn_t isr_func(int irq, void *data)
 	//IRQ발생 & LED가 OFF일때 
 	static int count;
 	ktime_t ktime;
-	unsigned long expireTime = 1000000L; //unit:ns
+	unsigned long expireTime = 10000000L; //unit:ns
 
 	static struct siginfo sinfo;
 	if(flag==0)
