@@ -11,11 +11,12 @@ static struct hrtimer hr_timer;
 enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
 {
     static int count=0;
-    unsigned long delay_in_ms = 200L;
+    unsigned long delay_in_ms = 100L;	//100ms
 
-    if(count>2)
+	//1초후 종료
+    if(count==10)
     {
-    	pr_info( "my_hrtimer_callback called (%ld).\n", jiffies );
+    	pr_info( "my_hrtimer_callback is done (%ld).\n", jiffies );
     	return HRTIMER_NORESTART;
     }
     else
@@ -23,24 +24,21 @@ enum hrtimer_restart my_hrtimer_callback( struct hrtimer *timer )
     	count++;
     	pr_info("count=%d\n",count);
 
-	ktime_t currtime, interval;
-	currtime = ktime_get();
-	interval = ktime_set(0, MS_TO_NS(delay_in_ms));
-	hrtimer_forward(timer, currtime, interval);
-	return HRTIMER_RESTART;
+		ktime_t currtime, interval;
+		currtime = ktime_get();
+		interval = ktime_set(0, MS_TO_NS(delay_in_ms));
+		hrtimer_forward(timer, currtime, interval);
+		return HRTIMER_RESTART;
     }
 
 }
 
 
-
-
- 
 static int hrt_init_module( void )
 {
     ktime_t ktime;
 
-    unsigned long delay_in_ms = 200L;
+    unsigned long delay_in_ms = 100L;  //100ms
     pr_info("HR Timer module installing\n");
 
     /*
