@@ -5,7 +5,11 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 #include "myioctl.h"
+
+#define GPIO_DEVICE	"gpioled"
+
 
 void signal_handler(int signum)
 {
@@ -22,16 +26,20 @@ void signal_handler(int signum)
 int main(int argc, char** argv)
 {
 	char buf[BUFSIZ];
+	char devPath[50];
 	int i=0;
 	int fd;
 	int count;
+	int data;
 	unsigned long temp;
 	memset(buf, 0, BUFSIZ);
-
+	
 	signal(SIGIO, signal_handler);
 
+	sprintf(devPath, "/dev/%s", GPIO_DEVICE);
 	printf("argv[1]:%s\n", argv[1]);
-	fd=open("/dev/gpioled",O_RDWR);
+	chmod(devPath, 0666);
+	fd=open(devPath,O_RDWR);
 	if(fd<0)
 	{
 		printf("Error open()\n");
@@ -45,17 +53,15 @@ int main(int argc, char** argv)
 		printf("Error write()\n");
 	}
 
-	//count=read(fd,buf,10);
-	//printf("Read data:%s\n",buf);
+	if (ioctl(fd, CMD1, 10) < 0)
+		printf("Error:ioctl1\n");
 
-	//Device Driver : [file*, cmd, arg]
-	temp = ioctl(fd,CMD1,10);
-	printf("temp data:%ld\n",temp);
-        temp = ioctl(fd,CMD2,25);
-	printf("temp data:%ld\n",temp);
-	temp = ioctl(fd,CMD3,125);	
-	printf("temp data:%ld\n",temp);
-	fflush(stdout);
+	if (ioctl(fd, CMD2, 21)<0)
+		printf("Error:ioctl2\n");
+
+	if (ioctl(fd, CMD3, 32)<0)
+		printf("Error:ioctl3\n");
+
 	close(fd);
 	return 0;
 

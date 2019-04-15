@@ -27,8 +27,10 @@ __attribute__((section("__versions"))) = {
 	{ 0xe6932195, __VMLINUX_SYMBOL_STR(hrtimer_start_range_ns) },
 	{ 0xce58dc69, __VMLINUX_SYMBOL_STR(hrtimer_init) },
 	{ 0x2e5810c6, __VMLINUX_SYMBOL_STR(__aeabi_unwind_cpp_pr1) },
-	{ 0x27e1a049, __VMLINUX_SYMBOL_STR(printk) },
 	{ 0x526c3a6c, __VMLINUX_SYMBOL_STR(jiffies) },
+	{ 0xf5e34dcb, __VMLINUX_SYMBOL_STR(hrtimer_forward) },
+	{ 0x7adeb8d4, __VMLINUX_SYMBOL_STR(ktime_get) },
+	{ 0x27e1a049, __VMLINUX_SYMBOL_STR(printk) },
 	{ 0xb1ad28e0, __VMLINUX_SYMBOL_STR(__gnu_mcount_nc) },
 };
 
@@ -38,4 +40,4 @@ __attribute__((section(".modinfo"))) =
 "depends=";
 
 
-MODULE_INFO(srcversion, "E59B9DF5391C05C4E8E3FFB");
+MODULE_INFO(srcversion, "4735B8026D11733BD1E3D8F");

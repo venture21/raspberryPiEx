@@ -16,13 +16,13 @@
 #include <linux/sched/signal.h>	//siginfo 구조체를 사용하기 위해
 #include "myioctl.h"
 
-
 #define GPIO_MAJOR	200
 #define GPIO_MINOR	0
 #define GPIO_DEVICE	"gpioled"
 #define GPIO_LED	18
 #define GPIO_SW		17
 #define BLK_SIZE	100
+
 //#define DEBUG
 
 struct cdev gpio_cdev;
@@ -36,18 +36,18 @@ static struct task_struct *task; 	//태스크를 위한 구조체
 pid_t pid;
 char pid_valid;
 
-
 static int gpio_open(struct inode *, struct file *);
 static int gpio_close(struct inode *, struct file *);
 static ssize_t gpio_read(struct file *, char *buff, size_t, loff_t *);
 static ssize_t gpio_write(struct file *, const char *, size_t, loff_t *);
-//long  gpio_ioctl(struct file *, unsigned int, unsigned long);
+long  gpio_ioctl(struct file *, unsigned int, unsigned long);
 
 
 long  gpio_ioctl_wr(struct file *fil, unsigned int cmd, unsigned long arg)
 {
 	switch (cmd)
 	{
+
 	case CMD1:
 		printk(KERN_INFO "CMD1:%ld\n", arg);
 		break;
@@ -55,9 +55,11 @@ long  gpio_ioctl_wr(struct file *fil, unsigned int cmd, unsigned long arg)
 	case CMD2:
 		printk(KERN_INFO "CMD2:%ld\n", arg);
 		break;
+
 	case CMD3:
 		printk(KERN_INFO "CMD3:%ld\n", arg);
 		break;
+
 	default:
 		printk(KERN_INFO "default:%ld\n", arg);
 		break;
@@ -267,7 +269,7 @@ static int __init initModule(void)
 		return err;
 	}
 
-	//노드를 자동으로만 들어준다.
+	//노드를 자동으로 만들어준다.
 	dev = device_create(class, NULL, devno, NULL, GPIO_DEVICE);
 	if(IS_ERR(dev))
 	{
