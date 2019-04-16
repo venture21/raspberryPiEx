@@ -1,0 +1,17 @@
+디바이스 드라이버 과제
+1. 디바이스 드라이버
+   스위치 2개 입력(start_sw, stop_sw)을 받아서 start_sw가 입력되면
+   hrtimer또는 standard timer를 통해 1/100초 마다(10ms) 1씩증가한다.
+   7-segment에는 초의 1의자리값을 출력한다.
+   (Digit가 1개이므로 제약이 있으므로)
+   start_sw와 stop_sw가 눌렸을때 시그널을 전송한다.
+   (sigusr1, sigusr2)
+   1/100초마다 응용프로그램에 시그널을 보낸다.
+   (sigio)
+
+2. 응용프로그램
+    시그널을 받아서 start_sw와 stop_sw가 눌렸을때 시그널을 받아서
+    printf함수로 출력한다.  
+    start_sw가 눌렸을때 : Stopwatch Start!
+    stop_sw가 눌렸을때 : Stopwatch Stop!
+   시그널 핸들러에서 초(십의자리, 일의자리)와 백분의 일초를 printf함수로 출력해준다. ex)13.72 sec  
