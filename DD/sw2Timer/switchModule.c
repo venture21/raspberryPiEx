@@ -51,8 +51,6 @@ enum hrtimer_restart myTimer_callback(struct hrtimer *timer)
 {
 	if (flag1)
 		flag1 = 0;
-	else if (flag2)
-		flag2 = 0;
 
 	printk(KERN_INFO "myTimer_callback\n");
 
@@ -64,33 +62,50 @@ enum hrtimer_restart myStopwatch_callback(struct hrtimer *timer)
 	ktime_t currtime, interval;
 	static int count = 0;
 	unsigned long delay_in_ms = 100L;	//100ms
+	static struct siginfo sinfo1;
+
+	// USER프로그램에 SIGIO를 전달한다.
+	memset(&sinfo1, 0, sizeof(struct siginfo));
+	sinfo1.si_signo = SIGIO;
+	sinfo1.si_code = SI_USER;
+	if (task != NULL)
+	{
+		//kill()와 동일한 kernel함수
+		send_sig_info(SIGIO, &sinfo1, task);
+	}
+	else
+	{
+		printk(KERN_INFO "Error: USER PID\n");
+	}
 
 	//sw2가 입력되면 stopwatchTimer종료
 	if (flag2)
 	{
-		pr_info("myStopwatch_callback is done (%ld).\n", jiffies);
+		flag2 = 0;
+		pr_info("stopwatch Time=%d\n", count);
+		count = 0;
+		
 		return HRTIMER_NORESTART;
 	}
 	else
 	{
 		count++;
-		pr_info("count=%d\n", count);
 
 		currtime = ktime_get();
 		interval = ktime_set(0, MS_TO_NS(delay_in_ms));
 		hrtimer_forward(timer, currtime, interval);
 		return HRTIMER_RESTART;
 	}
+
 }
 
 //switch 2개를 인터럽트 소스로 사용
 static irqreturn_t isr_func(int irq, void *data)
 {
-
 	//unsigned long delay_in_ms = 50L;	//50ms
 	//MS_TO_NS(delay_in_ms)
 	unsigned long expireTime = 50000000L;	 //50ms unit:ns
-	unsigned long stopwatchTime = 100000000L; //10ms unit:ns
+	unsigned long stopwatchTime = 100000000L; //100ms unit:ns
 
 	static int count=0;
 	
@@ -102,7 +117,7 @@ static irqreturn_t isr_func(int irq, void *data)
 		if (!flag1)
 		{
 			flag1 = 1;
-			
+			count = 0;
 			//-------------------------------------------------------------------
 
 			printk(KERN_INFO "start switch\n");
@@ -140,7 +155,7 @@ static irqreturn_t isr_func(int irq, void *data)
 		if (!flag2)
 		{
 			flag2 = 1;
-			
+
 			printk(KERN_INFO "stop switch\n");
 			ktime = ktime_set(0, expireTime);
 			hrtimer_start(&hr_timer, ktime, HRTIMER_MODE_REL);
@@ -216,6 +231,7 @@ static ssize_t gpio_write(struct file *fil, const char *buff, size_t len, loff_t
 static struct file_operations gpio_fops = {
 	.owner = THIS_MODULE,
 	.write = gpio_write,
+	//.read = gpio_read,
 	.open = gpio_open,
 	.release = gpio_close,
 };
@@ -308,11 +324,11 @@ static int __init initModule(void)
 		return -1;
 	}
 
-	// 채터링 방지 타이머 초기화
+	// 채터링 방지 타이머 생성 및 초기화
 	hrtimer_init(&hr_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	hr_timer.function = &myTimer_callback;
 	   	 
-	// stopwatch 타이머 초기화
+	// stopwatch 타이머 생성 및 초기화
 	hrtimer_init(&stopwatch, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	stopwatch.function = &myStopwatch_callback;
 
@@ -341,6 +357,7 @@ static void __exit cleanupModule(void)
 	gpio_free(GPIO_SW1);
 	gpio_free(GPIO_SW2);
 
+	//hr-Timer 취소
 	hrtimer_cancel(&stopwatch);
 	hrtimer_cancel(&hr_timer);
 	
