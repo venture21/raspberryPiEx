@@ -61,7 +61,7 @@ static ssize_t gpio_read(struct file *fil, char *buff, size_t len, loff_t *off)
 	if(gpio_get_value(GPIO_LED))
 		msg[0]='1';
 	else
-		msg[1]='0';
+		msg[0]='0';
 
 	// 이 데이터가 커널에서 온 데이터임을 표기한다.
 	strcat(msg," from kernel");
