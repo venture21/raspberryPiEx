@@ -12,33 +12,20 @@
 #include <linux/interrupt.h>	//gpio_to_irq(), request_irq(), free_irq()
 #include <linux/signal.h>	//signal을 사용
 #include <linux/sched/signal.h>	//siginfo 구조체를 사용하기 위해
-
-#define GPIO_MAJOR	200
-#define GPIO_MINOR	0
-#define GPIO_DEVICE	"gpiosw"
-#define GPIO_SW1	17
-#define GPIO_SW2	27
-#define BUF_SIZE	100
+#include "myswitch.h"
 
 struct cdev gpio_cdev;
-static char msg[BLK_SIZE] = { 0 };
+static char msg[BUF_SIZE] = { 0 };
 static int switch_irq1;
 static int switch_irq2;
 
 static struct task_struct *task; 	//태스크를 위한 구조체
+struct class *class;				//class 구조체 
+struct device *dev;
+
 pid_t pid;
 
-static void timer_func(unsigned long data)
-{
-	gpio_set_value(GPIO_LED, data);
-	if (data)
-		timer.data = 0L;
-	else
-		timer.data = 1L;
-	timer.expires = jiffies + (1 * HZ);
-	add_timer(&timer);
-}
-
+//switch 2개를 인터럽트 소스로 사용
 static irqreturn_t isr_func(int irq, void *data)
 {
 	//IRQ발생 & LED가 OFF일때 
@@ -182,6 +169,9 @@ static ssize_t gpio_write(struct file *fil, const char *buff, size_t len, loff_t
 	return count;
 }
 
+//================================================
+// 모듈 생성시 초기화 동작
+// 1.문자 디바이스 드라이버 등록 
 static int __init initModule(void)
 {
 	dev_t devno;
@@ -207,41 +197,70 @@ static int __init initModule(void)
 		return -1;
 	}
 
-	printk(KERN_INFO "'sudo mknod /dev/%s c %d 0'\n", GPIO_DEVICE, GPIO_MAJOR);
+	//class를 생성한다.
+	class = class_create(THIS_MODULE, GPIO_DEVICE);
+	if (IS_ERR(class))
+	{
+		err = PTR_ERR(class);
+		printk(KERN_INFO "class_create error %d\n", err);
+
+		cdev_del(&gpio_cdev);
+		unregister_chrdev_region(devno, 1);
+		return err;
+	}
+
+	//노드를 자동으로 만들어준다.
+	dev = device_create(class, NULL, devno, NULL, GPIO_DEVICE);
+	if (IS_ERR(dev))
+	{
+		err = PTR_ERR(dev);
+		printk(KERN_INFO "device create error %d\n", err);
+		class_destroy(class);
+		cdev_del(&gpio_cdev);
+		unregister_chrdev_region(devno, 1);
+		return err;
+	}
+
 	printk(KERN_INFO "'sudo chmod 666 /dev/%s'\n", GPIO_DEVICE);
 
-	// 현재 GPIO_LED핀이 사용중인지 확인하고 사용권한 획득
-	err = gpio_request(GPIO_LED, "LED");
+	// 현재 GPIO_SW1이 사용중인지 확인하고 사용권한 획득
+	err = gpio_request(GPIO_SW1, "SW1");
 	if (err == -EBUSY)
 	{
 		printk(KERN_INFO "Error gpio_request LED\n");
 		return -1;
 	}
 
-	// 현재 GPIO_SW핀이 사용중인지 확인하고 사용권한 획득
-	err = gpio_request(GPIO_SW, "SW");
-	if (err == -EBUSY)
-	{
-		printk(KERN_INFO "Error gpio_request SW\n");
-		return -1;
-	}
-
-	gpio_direction_output(GPIO_LED, 0);
-	switch_irq = gpio_to_irq(GPIO_SW);
-	err = request_irq(switch_irq, isr_func, IRQF_TRIGGER_RISING, "switch", NULL);
+	switch_irq1 = gpio_to_irq(GPIO_SW1);
+	err = request_irq(switch_irq1, isr_func, IRQF_TRIGGER_RISING, "switch1", NULL);
 	if (err)
 	{
 		printk(KERN_INFO "Error request_irq\n");
 		return -1;
 	}
 
+	// 현재 GPIO_SW2이 사용중인지 확인하고 사용권한 획득
+	err = gpio_request(GPIO_SW2, "SW2");
+	if (err == -EBUSY)
+	{
+		printk(KERN_INFO "Error gpio_request SW\n");
+		return -1;
+	}
+
+	switch_irq2 = gpio_to_irq(GPIO_SW2);
+	err = request_irq(switch_irq2, isr_func, IRQF_TRIGGER_RISING, "switch2", NULL);
+	if (err)
+	{
+		printk(KERN_INFO "Error request_irq\n");
+		return -1;
+	}
+	   	 
 	return 0;
 }
 
 static void __exit cleanupModule(void)
 {
 	dev_t devno = MKDEV(GPIO_MAJOR, GPIO_MINOR);
-	del_timer_sync(&timer);
 
 	// 1.문자 디바이스의 등록을 해제한다.
 	unregister_chrdev_region(devno, 1);
@@ -249,14 +268,13 @@ static void __exit cleanupModule(void)
 	// 2.문자 디바이스의 구조체를 삭제한다.
 	cdev_del(&gpio_cdev);
 
-	gpio_direction_output(GPIO_LED, 0);
-
 	//request_irq에서 받아온 사용권한을 반납한다.
-	free_irq(switch_irq, NULL);
+	free_irq(switch_irq1, NULL);
+	free_irq(switch_irq2, NULL);
 
 	//gpio_request()에서 받아온 사용권한을 반납한다.
-	gpio_free(GPIO_LED);
-	gpio_free(GPIO_SW);
+	gpio_free(GPIO_SW1);
+	gpio_free(GPIO_SW2);
 	
 	printk("Good-bye!\n");
 }

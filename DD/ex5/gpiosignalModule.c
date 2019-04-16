@@ -31,6 +31,7 @@ static char msg[BLK_SIZE]={0};
 static int switch_irq;
 static struct timer_list timer; 	//타이머처리를 위한 구조체
 static struct task_struct *task; 	//태스크를 위한 구조체
+
 pid_t pid;
 char pid_valid;
 
