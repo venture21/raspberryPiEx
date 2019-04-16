@@ -61,7 +61,7 @@ enum hrtimer_restart myStopwatch_callback(struct hrtimer *timer)
 {
 	ktime_t currtime, interval;
 	static int count = 0;
-	unsigned long delay_in_ms = 100L;	//100ms
+	unsigned long delay_in_ms = 10L;	//100ms
 	static struct siginfo sinfo1;
 
 	// USER프로그램에 SIGIO를 전달한다.
@@ -105,7 +105,7 @@ static irqreturn_t isr_func(int irq, void *data)
 	//unsigned long delay_in_ms = 50L;	//50ms
 	//MS_TO_NS(delay_in_ms)
 	unsigned long expireTime = 50000000L;	 //50ms unit:ns
-	unsigned long stopwatchTime = 100000000L; //100ms unit:ns
+	unsigned long stopwatchTime = 10000000L; //100ms unit:ns
 
 	static int count=0;
 	
