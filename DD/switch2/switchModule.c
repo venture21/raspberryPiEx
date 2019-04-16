@@ -282,6 +282,10 @@ static void __exit cleanupModule(void)
 {
 	dev_t devno = MKDEV(GPIO_MAJOR, GPIO_MINOR);
 
+	// 0. 생성했던 노드를 제거한다.
+	device_destroy(class, devno);
+	class_destroy(class);
+
 	// 1.문자 디바이스의 등록을 해제한다.
 	unregister_chrdev_region(devno, 1);
 

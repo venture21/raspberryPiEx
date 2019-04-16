@@ -25,6 +25,7 @@ int main(int argc, char** argv)
 	signal(SIGUSR2, signal_handler);
 
 	sprintf(buf, "/dev/%s", GPIO_DEVICE);
+
 	fd=open(buf, O_RDWR);
 	if(fd<0)
 	{
@@ -33,7 +34,7 @@ int main(int argc, char** argv)
 		return -1;	
 	}
 
-	sprintf(buf,"%s",getpid());
+	sprintf(buf,"%d",getpid());
 	count=write(fd, buf, strlen(buf));
 	if(count<0)
 	{
