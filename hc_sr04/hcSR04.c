@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 		endTime = micros();
 
 		if (count > 0)
-			printf("runtime : %ld sec %ld\n", UTCtime_r.tv_sec, UTCtime_r.tv_usec);
+			printf("runtime : %ld\n", UTCtime_r.tv_usec);
 
 		// 거리 계산 공식
 		before_distance = distance;
@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
 			delta_s = before_distance - distance;
 
 		velocity = (delta_s*10000)/ (UTCtime_r.tv_usec);  // unit : m/s
-		printf("velocity %f cm\n", velocity);
+		printf("velocity %f m/s\n", velocity);
 		count++;
 	}
 	return 0;
