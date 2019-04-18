@@ -37,5 +37,4 @@ int main(int argc, char *argv[])
 	}
 	return 0;
 }
-[출처] 초음파 모듈 제어(HC - SR04) - C언어 | 작성자 호기심
 
