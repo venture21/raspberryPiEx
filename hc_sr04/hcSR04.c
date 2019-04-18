@@ -4,8 +4,9 @@
 #include <sys/time.h>  //gettimeofday()
 #include <unistd.h>	   //gettimeofday()
 
-#define trig 4
-#define echo 5
+#define trig		4
+#define echo		5
+#define relayDat	1
 
 struct timeval UTCtime_r;
 
@@ -40,6 +41,23 @@ int main(int argc, char *argv[])
 
 	pinMode(trig, OUTPUT);
 	pinMode(echo, INPUT);
+	pinMode(relayDat, OUTPUT);
+
+	while (1)
+	{
+		if (!flag)
+		{
+			flag = 1;
+			digitalWrite(relayDat, LOW);
+		}
+		else
+		{
+			flag = 0;
+			digitalWrite(relayDat, HIGH);
+		}
+		sleep(1);
+	}
+
 
 	while (1) {
 		// Trig신호 생성 (10us)
