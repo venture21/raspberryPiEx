@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 {
 	int startTime, endTime;
 	float distance, before_distance, delta_s;
-	float velocity;
+	double velocity;
 	int flag = 0;
 	int count=0;
 	struct timeval UTCtime_t1, UTCtime_t2;
@@ -81,8 +81,8 @@ int main(int argc, char *argv[])
 		else
 			delta_s = before_distance - distance;
 
-		velocity = (delta_s)/ (UTCtime_r.tv_usec * 10000);  // unit : m/s
-		printf("velocity %.2f cm\n", velocity);
+		velocity = (delta_s*10000)/ (UTCtime_r.tv_usec);  // unit : m/s
+		printf("velocity %f cm\n", velocity);
 		count++;
 	}
 	return 0;
