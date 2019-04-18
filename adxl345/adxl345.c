@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <unistd.h>
 
 #define  DevAddr  0x53  //device address
 
@@ -13,14 +14,23 @@ struct acc_dat {
 
 void adxl345_init(int fd)
 {
+	// Init Command seq
 	wiringPiI2CWriteReg8(fd, 0x31, 0x0b);
 	wiringPiI2CWriteReg8(fd, 0x2d, 0x08);
+	usleep(11100);  // 11.1ms
 	//	wiringPiI2CWriteReg8(fd, 0x2e, 0x00);
+
+	//TODO : Take 100 data point sample -> average코드 
+	// 샘플링 대신 0으로 초기값 설정
 	wiringPiI2CWriteReg8(fd, 0x1e, 0x00);
 	wiringPiI2CWriteReg8(fd, 0x1f, 0x00);
 	wiringPiI2CWriteReg8(fd, 0x20, 0x00);
+		
+	// The DUR register 
+	// Disables the tap/double tap functions.
+	wiringPiI2CWriteReg8(fd, 0x21, 0x00);	
 
-	wiringPiI2CWriteReg8(fd, 0x21, 0x00);
+	
 	wiringPiI2CWriteReg8(fd, 0x22, 0x00);
 	wiringPiI2CWriteReg8(fd, 0x23, 0x00);
 
@@ -73,7 +83,7 @@ int main(void)
 		acc_xyz = adxl345_read_xyz(fd);
 		printf("x: %05d  y: %05d  z: %05d\n", acc_xyz.x, acc_xyz.y, acc_xyz.z);
 
-		delay(1000);
+		delay(100);
 	}
 
 	return 0;
