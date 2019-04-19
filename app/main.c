@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <wiringPi.h>
+#include <softTone.h>
 #include <errno.h>
 #include <pthread.h>
 #include <sys/types.h>
@@ -9,10 +10,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "music.h"
 
-#define	LED		1	//GPIO18
-#define trig	4	//GPIO23
-#define echo	5	//GPIO24
+#define	LED		1	// GPIO18
+#define trig	4	// GPIO23
+#define echo	5	// GPIO24
+#define	SPKR	6	// GPIO25 
+#define TOTAL	32	// 학교종의 전체 계이름의 수 
 
 struct Data
 {
@@ -20,10 +24,10 @@ struct Data
 	volatile float hc04_Dist;
 };
 
-
 //LED자원을 관리하기 위해 mutex변수를 선언한다.
 pthread_mutex_t led_lock;
 pthread_mutex_t hc04_lock;
+pthread_mutex_t music_lock;
 
 //=====================================================
 // LED Function
@@ -55,7 +59,7 @@ void* ledFunction(void *arg)
 		data = *((struct Data *)arg);
 		ledControl(data.led_Value);
 		printf("led=%d\n", data.led_Value);
-		usleep(100000);
+		usleep(200000);
 	}
 	return NULL;
 }
@@ -106,18 +110,148 @@ void* hc04Function(void *arg)
 	}
 	return NULL;
 }
+//=====================================================
+// music Function
+//=====================================================
+//This function generates the square wave that makes the piezo speaker sound at a determinated frequency.
+void beep(unsigned int note, unsigned int duration)
+{
+	//This is the semiperiod of each note.
+	long beepDelay = (long)(1000000 / note);
+	//This is how much time we need to spend on the note.
+	long time = (long)((duration * 1000) / (beepDelay * 2));
+	for (int i = 0; i < time; i++)
+	{
+		//1st semiperiod
+		digitalWrite(SPKR, HIGH);
+		delayMicroseconds(beepDelay);
+		//2nd semiperiod
+		digitalWrite(SPKR, LOW);
+		delayMicroseconds(beepDelay);
+	}
+
+	//Add a little delay to separate the single notes
+	digitalWrite(SPKR, LOW);
+	delay(20);
+}
+
+//The source code of the Imperial March from Star Wars
+void musicPlay()
+{
+	beep(a, 500);
+	beep(a, 500);
+	beep(f, 350);
+	beep(cH, 150);
+
+	beep(a, 500);
+	beep(f, 350);
+	beep(cH, 150);
+	beep(a, 1000);
+	beep(eH, 500);
+
+	beep(eH, 500);
+	beep(eH, 500);
+	beep(fH, 350);
+	beep(cH, 150);
+	beep(gS, 500);
+
+	beep(f, 350);
+	beep(cH, 150);
+	beep(a, 1000);
+	beep(aH, 500);
+	beep(a, 350);
+
+	beep(a, 150);
+	beep(aH, 500);
+	beep(gHS, 250);
+	beep(gH, 250);
+	beep(fHS, 125);
+
+	beep(fH, 125);
+	beep(fHS, 250);
+
+	delay(250);
+
+	beep(aS, 250);
+	beep(dHS, 500);
+	beep(dH, 250);
+	beep(cHS, 250);
+	beep(cH, 125);
+
+	beep(b, 125);
+	beep(cH, 250);
+
+	delay(250);
+
+	beep(f, 125);
+	beep(gS, 500);
+	beep(f, 375);
+	beep(a, 125);
+	beep(cH, 500);
+
+	beep(a, 375);
+	beep(cH, 125);
+	beep(eH, 1000);
+	beep(aH, 500);
+	beep(a, 350);
+
+	beep(a, 150);
+	beep(aH, 500);
+	beep(gHS, 250);
+	beep(gH, 250);
+	beep(fHS, 125);
+
+	beep(fH, 125);
+	beep(fHS, 250);
+
+	delay(250);
+
+	beep(aS, 250);
+	beep(dHS, 500);
+	beep(dH, 250);
+	beep(cHS, 250);
+	beep(cH, 125);
+
+	beep(b, 125);
+	beep(cH, 250);
+
+	delay(250);
+
+	beep(f, 250);
+	beep(gS, 500);
+	beep(f, 375);
+	beep(cH, 125);
+	beep(a, 500);
+
+	beep(f, 375);
+	beep(c, 125);
+	beep(a, 1000);
+}
+
+void *musicfunction(void *arg)
+{
+	if (pthread_mutex_trylock(&music_lock) != EBUSY) { /* 임계 구역 설정 */
+		musicPlay();
+		pthread_mutex_unlock(&music_lock); /* 임계 구역 해제 */
+	}
+
+	return NULL;
+}
+
 
 int main(int argc, char **argv)
 {
 	int err;
 	pthread_t thread_LED, thread_HC04;
+	pthread_t thread_MUSIC;
 	struct Data data;
 
 	//Init
 	wiringPiSetup();
 
 	pthread_create(&thread_LED, NULL, ledFunction, (void*)&data);
-	pthread_create(&thread_HC04, NULL, hc04Function, (void*)&data);
+	//pthread_create(&thread_HC04, NULL, hc04Function, (void*)&data);
+	pthread_create(&thread_MUSIC, NULL, musicfunction, (void*)&data);
 
 	while (1)
 	{
