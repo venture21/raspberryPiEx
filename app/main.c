@@ -21,9 +21,6 @@
 #define motor3	23   // GPIO13
 #define motor4	24   // GPIO19
 
-
-
-
 #define TOTAL	32	// 학교종의 전체 계이름의 수 
 #define FWD		1
 #define REW		0
@@ -36,8 +33,6 @@ struct Data
 {
 	int led_Value;
 	float hc04_Dist;
-	int motor_dir;
-	int motor_act;
 };
 
 //LED자원을 관리하기 위해 mutex변수를 선언한다.
@@ -261,74 +256,6 @@ void *musicFunction(void *arg)
 
 	return NULL;
 }
-
-//=====================================================
-// motor Function
-//=====================================================
-
-void motorControl(int motor_dir, int motor_act)
-{
-	if (pthread_mutex_trylock(&motor_lock) != EBUSY)  // 임계 구역 설정
-	{
-		if (motor_act==START)
-		{
-			digitalWrite(motor1, HIGH); //1
-			digitalWrite(motor2, LOW);
-			digitalWrite(motor3, LOW);
-			digitalWrite(motor4, LOW);
-			usleep(100000); //50ms
-			digitalWrite(motor1, HIGH);  //2
-			digitalWrite(motor2, LOW);
-			digitalWrite(motor3, LOW);
-			digitalWrite(motor4, LOW);
-			usleep(100000); //50ms
-			digitalWrite(motor1, LOW);  //3
-			digitalWrite(motor2, LOW);
-			digitalWrite(motor3, HIGH);
-			digitalWrite(motor4, LOW);
-			usleep(100000); //50ms
-			digitalWrite(motor1, LOW);  //4
-			digitalWrite(motor2, LOW);
-			digitalWrite(motor3, LOW);
-			digitalWrite(motor4, HIGH);
-			usleep(100000); //50ms
-
-		}
-		else
-		{
-			digitalWrite(motor1, LOW);
-			digitalWrite(motor2, LOW);
-			digitalWrite(motor3, LOW);
-			digitalWrite(motor4, LOW);
-		}
-		pthread_mutex_unlock(&motor_lock); // 임계 구역 해제 
-	}
-	return;
-}
-
-void *motorFunction(void *arg)
-{
-	struct Data data;
-	pinMode(motor1, OUTPUT);
-	pinMode(motor2, OUTPUT);
-	pinMode(motor3, OUTPUT);
-	pinMode(motor4, OUTPUT);
-	digitalWrite(motor1, LOW);
-	digitalWrite(motor2, LOW);
-	digitalWrite(motor3, LOW);
-	digitalWrite(motor4, LOW);
-	
-	data = *((struct Data *)arg);
-	data.motor_dir = FWD;
-	data.motor_act = START;
-	while(1)
-	{
-		motorControl(data.motor_dir, data.motor_act);
-	}
-
-	return NULL;
-}
-
 
 int main(int argc, char **argv)
 {

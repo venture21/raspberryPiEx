@@ -123,5 +123,5 @@ int main(void)
 	gpioExport(LED);
 	gpioDirection(LED, GPIO_OUT);
 	gpioValue(LED, 1);
-	//gpioUnexport(LED);
+	gpioUnexport(LED);
 }

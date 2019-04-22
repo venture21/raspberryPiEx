@@ -75,7 +75,6 @@ float readCpuFreq(int freq_type)
 
 int main(int argc, char **argv)
 {
-
 	float temp;
 	float cpu_freq;
 	
@@ -90,10 +89,7 @@ int main(int argc, char **argv)
 		printf("Cpu max Freq: %6.3fMHz\n", cpu_freq);
 		cpu_freq = readCpuFreq(MIN_FREQ);
 		printf("Cpu min Freq: %6.3fMHz\n", cpu_freq);
-
-
-
-
+			   		 
 		sleep(1);
 
 
