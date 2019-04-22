@@ -15,19 +15,36 @@
 #define	LED		1	// GPIO18
 #define trig	4	// GPIO23
 #define echo	5	// GPIO24
-#define	SPKR	6	// GPIO25 
+#define	piezo	6	// GPIO25
+#define motor1	21   // GPIO5
+#define motor2	22   // GPIO6
+#define motor3	23   // GPIO13
+#define motor4	24   // GPIO19
+
+
+
+
 #define TOTAL	32	// 학교종의 전체 계이름의 수 
+#define FWD		1
+#define REW		0
+#define START	1
+#define STOP	0
+
+
 
 struct Data
 {
-	volatile int led_Value;
-	volatile float hc04_Dist;
+	int led_Value;
+	float hc04_Dist;
+	int motor_dir;
+	int motor_act;
 };
 
 //LED자원을 관리하기 위해 mutex변수를 선언한다.
 pthread_mutex_t led_lock;
 pthread_mutex_t hc04_lock;
 pthread_mutex_t music_lock;
+pthread_mutex_t motor_lock;
 
 //=====================================================
 // LED Function
@@ -51,7 +68,7 @@ void ledControl(int value)
 void* ledFunction(void *arg)
 {
 	struct Data data;
-	
+	data = *((struct Data *)arg);
 	data.led_Value = 1;
 	pinMode(LED, OUTPUT);
 	while (1)
@@ -113,126 +130,200 @@ void* hc04Function(void *arg)
 //=====================================================
 // music Function
 //=====================================================
-//This function generates the square wave that makes the piezo speaker sound at a determinated frequency.
+// This function generates the square wave that makes
+// the piezo speaker sound at a determinated frequency.
 void beep(unsigned int note, unsigned int duration)
 {
 	//This is the semiperiod of each note.
 	long beepDelay = (long)(1000000 / note);
 	//This is how much time we need to spend on the note.
 	long time = (long)((duration * 1000) / (beepDelay * 2));
+
 	for (int i = 0; i < time; i++)
 	{
 		//1st semiperiod
-		digitalWrite(SPKR, HIGH);
+		digitalWrite(piezo, HIGH);
 		delayMicroseconds(beepDelay);
 		//2nd semiperiod
-		digitalWrite(SPKR, LOW);
+		digitalWrite(piezo, LOW);
 		delayMicroseconds(beepDelay);
 	}
 
 	//Add a little delay to separate the single notes
-	digitalWrite(SPKR, LOW);
+	digitalWrite(piezo, LOW);
 	delay(20);
+
 }
 
 //The source code of the Imperial March from Star Wars
 void musicPlay()
 {
-	beep(a, 500);
-	beep(a, 500);
-	beep(f, 350);
-	beep(cH, 150);
+	if (pthread_mutex_trylock(&music_lock) != EBUSY) /* 임계 구역 설정 */
+	{
+		beep(a, 500);
+		beep(a, 500);
+		beep(f, 350);
+		beep(cH, 150);
 
-	beep(a, 500);
-	beep(f, 350);
-	beep(cH, 150);
-	beep(a, 1000);
-	beep(eH, 500);
+		beep(a, 500);
+		beep(f, 350);
+		beep(cH, 150);
+		beep(a, 1000);
+		beep(eH, 500);
 
-	beep(eH, 500);
-	beep(eH, 500);
-	beep(fH, 350);
-	beep(cH, 150);
-	beep(gS, 500);
+		beep(eH, 500);
+		beep(eH, 500);
+		beep(fH, 350);
+		beep(cH, 150);
+		beep(gS, 500);
 
-	beep(f, 350);
-	beep(cH, 150);
-	beep(a, 1000);
-	beep(aH, 500);
-	beep(a, 350);
+		beep(f, 350);
+		beep(cH, 150);
+		beep(a, 1000);
+		beep(aH, 500);
+		beep(a, 350);
 
-	beep(a, 150);
-	beep(aH, 500);
-	beep(gHS, 250);
-	beep(gH, 250);
-	beep(fHS, 125);
+		beep(a, 150);
+		beep(aH, 500);
+		beep(gHS, 250);
+		beep(gH, 250);
+		beep(fHS, 125);
 
-	beep(fH, 125);
-	beep(fHS, 250);
+		beep(fH, 125);
+		beep(fHS, 250);
 
-	delay(250);
+		delay(250);
 
-	beep(aS, 250);
-	beep(dHS, 500);
-	beep(dH, 250);
-	beep(cHS, 250);
-	beep(cH, 125);
+		beep(aS, 250);
+		beep(dHS, 500);
+		beep(dH, 250);
+		beep(cHS, 250);
+		beep(cH, 125);
 
-	beep(b, 125);
-	beep(cH, 250);
+		beep(b, 125);
+		beep(cH, 250);
 
-	delay(250);
+		delay(250);
 
-	beep(f, 125);
-	beep(gS, 500);
-	beep(f, 375);
-	beep(a, 125);
-	beep(cH, 500);
+		beep(f, 125);
+		beep(gS, 500);
+		beep(f, 375);
+		beep(a, 125);
+		beep(cH, 500);
 
-	beep(a, 375);
-	beep(cH, 125);
-	beep(eH, 1000);
-	beep(aH, 500);
-	beep(a, 350);
+		beep(a, 375);
+		beep(cH, 125);
+		beep(eH, 1000);
+		beep(aH, 500);
+		beep(a, 350);
 
-	beep(a, 150);
-	beep(aH, 500);
-	beep(gHS, 250);
-	beep(gH, 250);
-	beep(fHS, 125);
+		beep(a, 150);
+		beep(aH, 500);
+		beep(gHS, 250);
+		beep(gH, 250);
+		beep(fHS, 125);
 
-	beep(fH, 125);
-	beep(fHS, 250);
+		beep(fH, 125);
+		beep(fHS, 250);
 
-	delay(250);
+		delay(250);
 
-	beep(aS, 250);
-	beep(dHS, 500);
-	beep(dH, 250);
-	beep(cHS, 250);
-	beep(cH, 125);
+		beep(aS, 250);
+		beep(dHS, 500);
+		beep(dH, 250);
+		beep(cHS, 250);
+		beep(cH, 125);
 
-	beep(b, 125);
-	beep(cH, 250);
+		beep(b, 125);
+		beep(cH, 250);
 
-	delay(250);
+		delay(250);
 
-	beep(f, 250);
-	beep(gS, 500);
-	beep(f, 375);
-	beep(cH, 125);
-	beep(a, 500);
+		beep(f, 250);
+		beep(gS, 500);
+		beep(f, 375);
+		beep(cH, 125);
+		beep(a, 500);
 
-	beep(f, 375);
-	beep(c, 125);
-	beep(a, 1000);
+		beep(f, 375);
+		beep(c, 125);
+		beep(a, 1000);
+		pthread_mutex_unlock(&music_lock); /* 임계 구역 해제 */
+	}
 }
 
-void *musicfunction(void *arg)
+
+void *musicFunction(void *arg)
 {
-	if (pthread_mutex_trylock(&music_lock) != EBUSY) { /* 임계 구역 설정 */
-		musicPlay();
-		pthread_mutex_unlock(&music_lock); /* 임계 구역 해제 */
+	pinMode(piezo, OUTPUT);
+	digitalWrite(piezo, LOW);
+	musicPlay();
+
+	return NULL;
+}
+
+//=====================================================
+// motor Function
+//=====================================================
+
+void motorControl(int motor_dir, int motor_act)
+{
+	if (pthread_mutex_trylock(&motor_lock) != EBUSY)  // 임계 구역 설정
+	{
+		if (motor_act==START)
+		{
+			digitalWrite(motor1, HIGH); //1
+			digitalWrite(motor2, LOW);
+			digitalWrite(motor3, LOW);
+			digitalWrite(motor4, LOW);
+			usleep(100000); //50ms
+			digitalWrite(motor1, HIGH);  //2
+			digitalWrite(motor2, LOW);
+			digitalWrite(motor3, LOW);
+			digitalWrite(motor4, LOW);
+			usleep(100000); //50ms
+			digitalWrite(motor1, LOW);  //3
+			digitalWrite(motor2, LOW);
+			digitalWrite(motor3, HIGH);
+			digitalWrite(motor4, LOW);
+			usleep(100000); //50ms
+			digitalWrite(motor1, LOW);  //4
+			digitalWrite(motor2, LOW);
+			digitalWrite(motor3, LOW);
+			digitalWrite(motor4, HIGH);
+			usleep(100000); //50ms
+
+		}
+		else
+		{
+			digitalWrite(motor1, LOW);
+			digitalWrite(motor2, LOW);
+			digitalWrite(motor3, LOW);
+			digitalWrite(motor4, LOW);
+		}
+		pthread_mutex_unlock(&motor_lock); // 임계 구역 해제 
+	}
+	return;
+}
+
+void *motorFunction(void *arg)
+{
+	struct Data data;
+	pinMode(motor1, OUTPUT);
+	pinMode(motor2, OUTPUT);
+	pinMode(motor3, OUTPUT);
+	pinMode(motor4, OUTPUT);
+	digitalWrite(motor1, LOW);
+	digitalWrite(motor2, LOW);
+	digitalWrite(motor3, LOW);
+	digitalWrite(motor4, LOW);
+	
+	data = *((struct Data *)arg);
+	data.motor_dir = FWD;
+	data.motor_act = START;
+	while(1)
+	{
+		motorControl(data.motor_dir, data.motor_act);
 	}
 
 	return NULL;
@@ -242,8 +333,11 @@ void *musicfunction(void *arg)
 int main(int argc, char **argv)
 {
 	int err;
-	pthread_t thread_LED, thread_HC04;
+	pthread_t thread_LED;
+	pthread_t thread_HC04;
 	pthread_t thread_MUSIC;
+	pthread_t thread_MOTOR;
+
 	struct Data data;
 
 	//Init
@@ -251,7 +345,8 @@ int main(int argc, char **argv)
 
 	pthread_create(&thread_LED, NULL, ledFunction, (void*)&data);
 	//pthread_create(&thread_HC04, NULL, hc04Function, (void*)&data);
-	pthread_create(&thread_MUSIC, NULL, musicfunction, (void*)&data);
+	//pthread_create(&thread_MUSIC, NULL, musicFunction, (void*)&data);
+	pthread_create(&thread_MOTOR, NULL, motorFunction, (void*)&data);
 
 	while (1)
 	{
@@ -262,8 +357,8 @@ int main(int argc, char **argv)
 		sleep(1);
 	}
 
-
 	pthread_join(thread_LED, 0);
 	pthread_join(thread_HC04, 0);
+	pthread_join(thread_MOTOR, 0);
 
 }
