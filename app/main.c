@@ -28,8 +28,6 @@
 #define START	1
 #define STOP	0
 
-
-
 struct Data
 {
 	int led_Value;
@@ -294,6 +292,7 @@ int main(int argc, char **argv)
 
 	pthread_join(thread_LED, 0);
 	pthread_join(thread_HC04, 0);
-	pthread_join(thread_MOTOR, 0);
+	pthread_join(thread_MUSIC, 0);
+	//pthread_join(thread_MOTOR, 0);
 
 }
