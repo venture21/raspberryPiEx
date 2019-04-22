@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 #include <time.h>
 #include "music.h"
 
@@ -257,6 +258,12 @@ void *musicFunction(void *arg)
 	return NULL;
 }
 
+static void sigHandler(int signum)
+{
+	digitalWrite(piezo, LOW);
+	exit(0);
+}
+
 int main(int argc, char **argv)
 {
 	int err;
@@ -270,10 +277,11 @@ int main(int argc, char **argv)
 	//Init
 	wiringPiSetup();
 
+	signal(SIGINT, sigHandler);
 	pthread_create(&thread_LED, NULL, ledFunction, (void*)&data);
 	//pthread_create(&thread_HC04, NULL, hc04Function, (void*)&data);
-	//pthread_create(&thread_MUSIC, NULL, musicFunction, (void*)&data);
-	pthread_create(&thread_MOTOR, NULL, motorFunction, (void*)&data);
+	pthread_create(&thread_MUSIC, NULL, musicFunction, (void*)&data);
+	//pthread_create(&thread_MOTOR, NULL, motorFunction, (void*)&data);
 
 	while (1)
 	{
