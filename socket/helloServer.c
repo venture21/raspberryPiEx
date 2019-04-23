@@ -58,6 +58,10 @@ int main(int argc, char* argv[])
 	//STEP 5. 데이터 송신
 	write(clnt_sock, message, sizeof(message));
 
+	// 서버의 소켓을 먼저 닫을 경우 bind()에러가 발생할 수 있다.
+	// 클라이언트보다 늦게 소켓을 종료하기 위해 sleep!
+	sleep(2);
+
 	// STEP 6. 소켓 종료
 	close(clnt_sock);
 	close(serv_sock);
