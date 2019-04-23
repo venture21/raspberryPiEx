@@ -32,8 +32,8 @@ int main(int argc, char* argv[])
 	//STEP 1. socket을 생성한다. file의  open과 동일
 	// PF_INET : IP v4
 	// SOCK_STREAM : TCP
-	sock = socket(PF_INET, SOCK_STREAM, 0);
-	if (sock == -1)
+	serv_sock = socket(PF_INET, SOCK_STREAM, 0);
+	if (serv_sock == -1)
 		error_handling("socket() error");
 
 	//STEP 2. 접속할 서버의 IP주소, 포트번호, 프로토콜을 정의
