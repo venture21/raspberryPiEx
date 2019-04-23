@@ -5,7 +5,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#define DEBUG
+//#define DEBUG
 
 struct calcul
 {
@@ -26,6 +26,7 @@ int main(int argc, char* argv[])
 {
 	int sock; //fd
 	int i;
+	int result;
 	struct calcul cal;
 	struct sockaddr_in serv_addr;
 	int str_len;
@@ -77,7 +78,8 @@ int main(int argc, char* argv[])
 #endif
 	//STEP 5. 데이터 송신
 	write(sock, &cal, sizeof(cal));
-
+	read(sock, &result, sizeof(result));
+	printf("result:%d\n", result);
 
 	// STEP 5. 소켓 종료
 	close(sock);

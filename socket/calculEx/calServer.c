@@ -5,7 +5,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#define DEBUG
+//#define DEBUG
 
 struct calcul
 {
@@ -102,7 +102,8 @@ int main(int argc, char* argv[])
 #endif
 
 	result = calculate(cal.opnd_cnt, cal.opnd, cal.oper);
-	printf("result=%d\n",result);
+	write(clnt_sock, &result, sizeof(result));
+	//printf("result=%d\n",result);
 
 	// 서버의 소켓을 먼저 닫을 경우 bind()에러가 발생할 수 있다.
 	// 클라이언트보다 늦게 소켓을 종료하기 위해 sleep!
