@@ -1,0 +1,17 @@
+$ git clone https://github.com/rm-hull/max7219.git
+$ cd max7219
+$ sudo pip install -e .
+
+$ cd max7219
+$ sudo apt-get install python-dev python-pip
+$ sudo pip install spidev
+$ sudo python setup.py install
+
+
+$ sudo rm -rf /usr/local/lib/python2.7/dist-packages/luma*
+$ sudo -H pip install -U luma.led_matrix
+
+
+
+example디렉토리에서 
+./matrix_demo.py --cascaded 2 --block-orientation 90
