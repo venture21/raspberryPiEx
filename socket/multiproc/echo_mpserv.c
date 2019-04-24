@@ -25,19 +25,27 @@ int main(int argc, char *argv[])
 		printf("Usage : %s <port>\n", argv[0]);
 		exit(1);
 	}
-
+	//SIGCHILD를 처리하기 위해 핸들러 등록
 	act.sa_handler=read_childproc;
 	sigemptyset(&act.sa_mask);
 	act.sa_flags=0;
 	state=sigaction(SIGCHLD, &act, 0);
+
+	// STEP 1.
 	serv_sock=socket(PF_INET, SOCK_STREAM, 0);
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family=AF_INET;
 	serv_adr.sin_addr.s_addr=htonl(INADDR_ANY);
 	serv_adr.sin_port=htons(atoi(argv[1]));
 	
+	// bind() error는 발생하지 않는다.
+	//setsockopt(serv_sock, SOL_SOCKET, SO_REUSEADDR, &option, optlen);
+
+	//STEP 2.
 	if(bind(serv_sock, (struct sockaddr*) &serv_adr, sizeof(serv_adr))==-1)
 		error_handling("bind() error");
+
+	//STEP 3.
 	if(listen(serv_sock, 5)==-1)
 		error_handling("listen() error");
 	
