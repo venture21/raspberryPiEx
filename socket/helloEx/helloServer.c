@@ -17,6 +17,7 @@ int main(int argc, char* argv[])
 	int serv_sock;
 	int clnt_sock;
 
+	unsigned long clntAddr;
 	struct sockaddr_in serv_addr;
 	struct sockaddr_in clnt_addr;
 	socklen_t clnt_addr_size;
@@ -54,6 +55,9 @@ int main(int argc, char* argv[])
 	clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_addr, &clnt_addr_size);
 	if(clnt_sock==-1)
 		error_handling("accept() error");
+
+	//클라이언트의 주소값을 확인한다.
+	printf("Client Addr : %s\n", inet_ntoa(clnt_addr.sin_addr));
 
 	//STEP 5. 데이터 송신
 	write(clnt_sock, message, sizeof(message));
