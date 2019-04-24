@@ -61,7 +61,7 @@ void* ledFunction(void *arg)
 
 static void sigHandler(int signum)
 {
-	digitalWrite(piezo, LOW);
+	printf("sigHanlder\n");
 	exit(0);
 }
 
@@ -79,6 +79,14 @@ int main(int argc, char **argv)
 	pthread_create(&thread_LED, NULL, ledFunction, (void*)&data);
 
 	//TODO
+	while (1)
+	{
+		if (data.led_Value == 1)
+			ledWrite(&data, LOW);
+		else
+			ledWrite(&data, HIGH);
+		sleep(1);
+	}
 
 	pthread_join(thread_LED, 0);
 	
