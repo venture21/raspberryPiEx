@@ -266,10 +266,11 @@ int main(int argc, char **argv)
 {
 	int err;
 	pthread_t thread_LED;
+	/*
 	pthread_t thread_HC04;
 	pthread_t thread_MUSIC;
 	pthread_t thread_MOTOR;
-
+	*/
 	struct Data data;
 
 	//Init
@@ -278,7 +279,7 @@ int main(int argc, char **argv)
 	signal(SIGINT, sigHandler);
 	pthread_create(&thread_LED, NULL, ledFunction, (void*)&data);
 	//pthread_create(&thread_HC04, NULL, hc04Function, (void*)&data);
-	pthread_create(&thread_MUSIC, NULL, musicFunction, (void*)&data);
+	//pthread_create(&thread_MUSIC, NULL, musicFunction, (void*)&data);
 	//pthread_create(&thread_MOTOR, NULL, motorFunction, (void*)&data);
 
 	while (1)
@@ -291,8 +292,8 @@ int main(int argc, char **argv)
 	}
 
 	pthread_join(thread_LED, 0);
-	pthread_join(thread_HC04, 0);
-	pthread_join(thread_MUSIC, 0);
+	//pthread_join(thread_HC04, 0);
+	//pthread_join(thread_MUSIC, 0);
 	//pthread_join(thread_MOTOR, 0);
 
 }
