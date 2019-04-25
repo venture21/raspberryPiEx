@@ -49,12 +49,11 @@ void read_routine(int sock, char *buf)
 {
 	while(1)
 	{
-		int str_len=read(sock, buf, BUF_SIZE);
+		int str_len=read(sock, &data, sizeof(data));
 		if(str_len==0)
 			return;
 
-		buf[str_len]=0;
-		printf("Message from server: %s", buf);
+		printf("data.hc04_dist=%f\n", data.hc04_dist);
 	}
 }
 void write_routine(int sock, char *buf)
@@ -67,9 +66,13 @@ void write_routine(int sock, char *buf)
 			data.led_Value = 0;
 		else
 			data.led_Value = 1;
-
+		data.cmd = WR_LED;
 		printf("data.led_Value=%d\n", data.led_Value);
 		write(sock, &data, sizeof(data));
+
+		data.cmd = RD_HC04;
+		write(sock, &data, sizeof(data));
+		
 		sleep(1);
 	}
 

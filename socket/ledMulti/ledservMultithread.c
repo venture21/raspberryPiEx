@@ -25,6 +25,7 @@ int clnt_cnt = 0;
 int clnt_socks[MAX_CLNT];
 pthread_mutex_t mutx;
 
+struct Data buf;
 struct Data data;
 
 //LED자원을 관리하기 위해 mutex변수를 선언한다.
@@ -73,7 +74,7 @@ void* ledFunction(void *arg)
 //=====================================================
 // HC_SR04 Function
 //=====================================================
-int hc04Control(void)
+float hc04Control(void)
 {
 	int startTime, endTime;
 	float distance;
@@ -97,22 +98,24 @@ int hc04Control(void)
 		endTime = micros();
 
 		distance = (endTime - startTime) / 58;
-
 		pthread_mutex_unlock(&hc04_lock);
+		usleep(10000);
+		printf("distance:%f\n", distance);
 	}
 	return distance;
 }
 
 void* hc04Function(void *arg)
 {
-	int ret;
+	float ret;
 	pinMode(trig, OUTPUT);
 	pinMode(echo, INPUT);
 	digitalWrite(trig, LOW);
-	while (1)
+	while (!data.endFlag)
 	{
 		ret = hc04Control();
-		printf("distance:%d\n", ret);
+		data.hc04_dist = ret;
+		
 	}
 	return NULL;
 }
@@ -124,11 +127,21 @@ void* userThread(void *arg)
 	pthread_t t_id;
 	
 	pthread_create(&t_id, NULL, ledFunction, 0);
-	//	HC04Function
-
-	while ((str_len = read(clnt_sock, &data, sizeof(data))) != 0)
+	pthread_create(&t_id, NULL, hc04Function, 0);
+	
+	while ((str_len = read(clnt_sock, &buf, sizeof(buf))) != 0)
 	{
-		printf("data.led_Value=%d\n", data.led_Value);
+		switch (buf.cmd)
+		{
+			case WR_LED: data.led_Value = buf.led_Value;
+						printf("data.led_Value=%d\n", data.led_Value);
+						break;
+			case RD_HC04: write(clnt_sock, &data, sizeof(data));
+						printf("data.dist:%f\n", data.hc04_dist);
+						break;
+			default:
+						break;
+		}
 	}
 	data.endFlag = 1;
 
@@ -165,7 +178,6 @@ int main(int argc, char **argv)
 	int str_len;
 	struct sockaddr_in serv_adr, clnt_adr;
 	int clnt_adr_sz;
-	struct Data data, buf;
 	data.endFlag = 0;
 	//Init
 	wiringPiSetup();
