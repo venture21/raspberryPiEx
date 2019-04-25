@@ -136,7 +136,9 @@ void* userThread(void *arg)
 			case WR_LED: data.led_Value = buf.led_Value;
 						printf("data.led_Value=%d\n", data.led_Value);
 						break;
-			case RD_HC04: write(clnt_sock, &data, sizeof(data));
+			case RD_HC04:
+						data.cmd = WR_DIST;
+						write(clnt_sock, &data, sizeof(data));
 						printf("data.dist:%f\n", data.hc04_dist);
 						break;
 			default:
