@@ -124,11 +124,15 @@ void* userThread(void *arg)
 {
 	int clnt_sock = *((int*)arg);
 	int str_len = 0, i;
+	int read_cnt;
 	pthread_t t_id[2];
+	FILE *fp;
+	char filebuf[BUF_SIZE];
 	
 	pthread_create(&t_id[0], NULL, ledFunction, 0);
 	pthread_create(&t_id[1], NULL, hc04Function, 0);
 	
+
 	while ((str_len = read(clnt_sock, &buf, sizeof(buf))) != 0)
 	{
 		switch (buf.cmd)
@@ -140,6 +144,24 @@ void* userThread(void *arg)
 						data.cmd = WR_DIST;
 						write(clnt_sock, &data, sizeof(data));
 						printf("data.dist:%f\n", data.hc04_dist);
+						break;
+			case RD_IMG: 
+						data.cmd = WR_IMG;
+						write(clnt_sock, &data, sizeof(data));
+						fp = fopen(FILENAME, "rb");
+						while (1)
+						{
+							read_cnt = fread((void*)filebuf, 1, BUF_SIZE, fp);
+							// 남아있는 파일의 사이즈가 BUF_SIZE보다 작을 경우
+							if (read_cnt < BUF_SIZE)
+							{
+								write(clnt_sock, filebuf, read_cnt);
+								break;
+							}
+							// 남아있는 파일의 사이즈가 BUF_SIZE보다 큰 경우
+							write(clnt_sock, filebuf, BUF_SIZE);
+						}
+						fclose(fp);
 						break;
 			default:
 						break;
@@ -166,6 +188,7 @@ void* userThread(void *arg)
 
 
 }
+
 static void sigHandler(int signum)
 {
 	printf("sigHanlder\n");

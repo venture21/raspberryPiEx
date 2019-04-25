@@ -6,7 +6,6 @@
 #include <sys/socket.h>
 #include "raspi.h"
 
-#define BUF_SIZE 30
 void error_handling(char *message);
 void read_routine(int sock, char *buf);
 void write_routine(int sock, char *buf);
@@ -47,6 +46,10 @@ int main(int argc, char *argv[])
 
 void read_routine(int sock, char *buf)
 {
+	int read_cnt;
+	char filebuf[BUF_SIZE];
+	FILE *fp;
+
 	while(1)
 	{
 		int str_len=read(sock, &data, sizeof(data));
@@ -57,6 +60,12 @@ void read_routine(int sock, char *buf)
 			// HC04의 거리데이터를 수신하면 값을 출력한다.
 			case WR_DIST: printf("data.hc04_dist=%f\n", data.hc04_dist);
 				break;
+			case WR_IMG: 
+						fp = fopen(FILENAME, "wb");
+						while ((read_cnt = read(sock, filebuf, BUF_SIZE)) != 0)
+							fwrite((void*)filebuf, 1, read_cnt, fp);
+						fclose(fp);
+						break;
 		}
 	}
 }
