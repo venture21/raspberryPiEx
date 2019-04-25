@@ -15,6 +15,9 @@
 #include "raspi.h"
 
 #define	LED		1	// GPIO18
+#define trig	4	// GPIO23
+#define echo	5	// GPIO24
+
 #define DEBUG
 #define MAX_CLNT 256
 
