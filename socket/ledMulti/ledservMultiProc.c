@@ -85,7 +85,7 @@ int main(int argc, char **argv)
 	wiringPiSetup();
 
 	signal(SIGINT, sigHandler);
-
+	
 
 	// STEP 1.
 	serv_sock = socket(PF_INET, SOCK_STREAM, 0);
@@ -122,6 +122,8 @@ int main(int argc, char **argv)
 		if (pid == 0)
 		{
 			close(serv_sock);
+
+			//자식 프로세스를 생성한 뒤에 스레드를 생성한다.
 			pthread_create(&thread_LED, NULL, ledFunction, (void*)&data);
 
 			while ((str_len = read(clnt_sock, &buf, sizeof(buf))) != 0)
@@ -129,6 +131,8 @@ int main(int argc, char **argv)
 				printf("buf.led_Value=%d\n", buf.led_Value);
 				ledWrite(&data, buf.led_Value);
 			}
+
+			//자식 프로세스를 종료하기 전에 스레드를 종료한다.
 			pthread_join(thread_LED, 0);
 
 			close(clnt_sock);
