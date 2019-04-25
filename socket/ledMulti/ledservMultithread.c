@@ -67,6 +67,53 @@ void* ledFunction(void *arg)
 
 }
 
+//=====================================================
+// HC_SR04 Function
+//=====================================================
+int hc04Control(void)
+{
+	int startTime, endTime;
+	float distance;
+
+	// LED를 위한 MUTEX구현
+	if (pthread_mutex_trylock(&hc04_lock) != EBUSY)
+	{
+		// Trig신호 생성 (10us)
+		digitalWrite(trig, HIGH);
+		usleep(10);					//wiringPi : delayMicroseconds(10); 
+		digitalWrite(trig, LOW);
+
+		// Echo back이 '1'이면 시작시간 기록 
+		while (digitalRead(echo) == 0);
+		//wiringPi : wiringPiSetup이후의 시간을 마이크로초로 측정하는 함수
+		startTime = micros();
+
+		// Echo back이 '1'이면 대기 
+		while (digitalRead(echo) == 1);
+		// Echo back이 '0'이면 종료시간 기록 
+		endTime = micros();
+
+		distance = (endTime - startTime) / 58;
+
+		pthread_mutex_unlock(&hc04_lock);
+	}
+	return distance;
+}
+
+void* hc04Function(void *arg)
+{
+	int ret;
+	pinMode(trig, OUTPUT);
+	pinMode(echo, INPUT);
+	digitalWrite(trig, LOW);
+	while (1)
+	{
+		ret = hc04Control();
+		printf("distance:%d\n", ret);
+	}
+	return NULL;
+}
+
 void* userThread(void *arg)
 {
 	int clnt_sock = *((int*)arg);
