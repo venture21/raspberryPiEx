@@ -61,11 +61,12 @@ void read_routine(int sock, char *buf)
 			case WR_DIST: printf("data.hc04_dist=%f\n", data.hc04_dist);
 				break;
 			case WR_IMG: 
-						fp = fopen("result.jpg", "w+b");
+						fp = fopen("result.jpg", "wb");
 						while ((read_cnt = read(sock, filebuf, BUF_SIZE)) != 0)
 						{
 							fwrite((void*)filebuf, 1, read_cnt, fp);
-							fflush(fp);
+							if (read_cnt < BUF_SIZE)
+								break;
 						}
 						fclose(fp);
 						printf("File Write is done\n");
@@ -97,8 +98,7 @@ void write_routine(int sock, char *buf)
 		data.cmd = RD_IMG;
 		write(sock, &data, sizeof(data));
 
-
-		sleep(10);
+		sleep(3);
 	}
 
 }

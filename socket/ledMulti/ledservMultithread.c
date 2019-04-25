@@ -125,13 +125,10 @@ void* userThread(void *arg)
 	int clnt_sock = *((int*)arg);
 	int str_len = 0, i;
 	int read_cnt;
+	int wrDone=0;
 	pthread_t t_id[2];
 	FILE *fp;
 	char filebuf[BUF_SIZE];
-	
-	pthread_create(&t_id[0], NULL, ledFunction, 0);
-	pthread_create(&t_id[1], NULL, hc04Function, 0);
-	
 
 	while ((str_len = read(clnt_sock, &buf, sizeof(buf))) != 0)
 	{
@@ -161,8 +158,9 @@ void* userThread(void *arg)
 							// 남아있는 파일의 사이즈가 BUF_SIZE보다 큰 경우
 							write(clnt_sock, filebuf, BUF_SIZE);
 						}
-						printf("File Write is done\n");
 						fclose(fp);
+						wrDone = 0;
+						printf("File Write is done\n");
 						break;
 			default:
 						break;
@@ -170,8 +168,6 @@ void* userThread(void *arg)
 	}
 	data.endFlag = 1;
 
-	pthread_detach(t_id[0]);
-	pthread_detach(t_id[1]);
 	printf("userThread is end\n");
 	pthread_mutex_lock(&mutx);
 	for (i = 0; i < clnt_cnt; i++)   // remove disconnected client
@@ -186,8 +182,6 @@ void* userThread(void *arg)
 	clnt_cnt--;
 	pthread_mutex_unlock(&mutx);
 	close(clnt_sock);
-
-
 }
 
 static void sigHandler(int signum)
@@ -201,7 +195,7 @@ int main(int argc, char **argv)
 	int err;
 	int serv_sock, clnt_sock;
 	pthread_t thread_LED;
-	pthread_t t_id;
+	pthread_t t_id[3];
 	int str_len;
 	struct sockaddr_in serv_adr, clnt_adr;
 	int clnt_adr_sz;
@@ -229,6 +223,9 @@ int main(int argc, char **argv)
 	if (listen(serv_sock, 5) == -1)
 		error_handling("listen() error");
 
+	pthread_create(&t_id[0], NULL, ledFunction, 0);
+	pthread_create(&t_id[1], NULL, hc04Function, 0);
+
 	while (1)
 	{
 		clnt_adr_sz = sizeof(clnt_adr);
@@ -239,23 +236,14 @@ int main(int argc, char **argv)
 		pthread_mutex_unlock(&mutx);
 
 		// 사용자의 요청에 대응하기 위해 클라이언트당 1개의 스레드 생성
-		pthread_create(&t_id, NULL, userThread, (void*)&clnt_sock);
-		pthread_detach(t_id);
+		pthread_create(&t_id[2], NULL, userThread, (void*)&clnt_sock);
+		pthread_detach(t_id[2]);
 		printf("Connected client IP: %s \n", inet_ntoa(clnt_adr.sin_addr));
 	}
+	
+	pthread_detach(t_id[0]);
+	pthread_detach(t_id[1]);
 
-#ifdef DEBUG
-	// 회로 연결을 테스트 하기 위한 코드
-	while (1)
-	{
-		if (data.led_Value == 1)
-			ledWrite(&data, LOW);
-		else
-			ledWrite(&data, HIGH);
-		sleep(1);
-	}
-#endif
-	   
 	close(serv_sock);
 	return 0;
 
