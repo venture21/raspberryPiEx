@@ -4,11 +4,14 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include "raspi.h"
 
 #define BUF_SIZE 30
 void error_handling(char *message);
 void read_routine(int sock, char *buf);
 void write_routine(int sock, char *buf);
+
+struct Data data;
 
 int main(int argc, char *argv[])
 {
@@ -16,6 +19,8 @@ int main(int argc, char *argv[])
 	pid_t pid;
 	char buf[BUF_SIZE];
 	struct sockaddr_in serv_adr;
+
+
 	if(argc!=3) {
 		printf("Usage : %s <IP> <port>\n", argv[0]);
 		exit(1);
@@ -54,16 +59,20 @@ void read_routine(int sock, char *buf)
 }
 void write_routine(int sock, char *buf)
 {
-	while(1)
+	data.led_Value = 0;
+
+	while (1)
 	{
-		fgets(buf, BUF_SIZE, stdin);
-		if(!strcmp(buf,"q\n") || !strcmp(buf,"Q\n"))
-		{	
-			shutdown(sock, SHUT_WR);
-			return;
-		}
-		write(sock, buf, strlen(buf));
+		if (data.led_Value == 1)
+			data.led_Value = 0;
+		else
+			data.led_Value = 1;
+
+		printf("data.led_Value=%d\n", data.led_Value);
+		write(sock, &data, sizeof(data));
+		sleep(1);
 	}
+
 }
 void error_handling(char *message)
 {
