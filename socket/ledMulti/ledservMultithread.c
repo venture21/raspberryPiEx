@@ -124,10 +124,10 @@ void* userThread(void *arg)
 {
 	int clnt_sock = *((int*)arg);
 	int str_len = 0, i;
-	pthread_t t_id;
+	pthread_t t_id[2];
 	
-	pthread_create(&t_id, NULL, ledFunction, 0);
-	pthread_create(&t_id, NULL, hc04Function, 0);
+	pthread_create(&t_id[0], NULL, ledFunction, 0);
+	pthread_create(&t_id[1], NULL, hc04Function, 0);
 	
 	while ((str_len = read(clnt_sock, &buf, sizeof(buf))) != 0)
 	{
@@ -145,7 +145,8 @@ void* userThread(void *arg)
 	}
 	data.endFlag = 1;
 
-	pthread_detach(t_id);
+	pthread_detach(t_id[0]);
+	pthread_detach(t_id[1]);
 	printf("userThread is end\n");
 	pthread_mutex_lock(&mutx);
 	for (i = 0; i < clnt_cnt; i++)   // remove disconnected client
