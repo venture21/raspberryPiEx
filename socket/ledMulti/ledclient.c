@@ -52,8 +52,12 @@ void read_routine(int sock, char *buf)
 		int str_len=read(sock, &data, sizeof(data));
 		if(str_len==0)
 			return;
-
-		printf("data.hc04_dist=%f\n", data.hc04_dist);
+		switch (data.cmd)
+		{
+			// HC04의 거리데이터를 수신하면 값을 출력한다.
+			case WR_DIST: printf("data.hc04_dist=%f\n", data.hc04_dist);
+				break;
+		}
 	}
 }
 void write_routine(int sock, char *buf)
@@ -62,14 +66,18 @@ void write_routine(int sock, char *buf)
 
 	while (1)
 	{
+		// LED를 깜빡이기 위한 코드
 		if (data.led_Value == 1)
 			data.led_Value = 0;
 		else
 			data.led_Value = 1;
+
+		// 서버에 LED값 변경을 위한 요청 데이터 보내기
 		data.cmd = WR_LED;
 		printf("data.led_Value=%d\n", data.led_Value);
 		write(sock, &data, sizeof(data));
 
+		// 서버에 HC04 거리 요청 데이터 보내기
 		data.cmd = RD_HC04;
 		write(sock, &data, sizeof(data));
 		
