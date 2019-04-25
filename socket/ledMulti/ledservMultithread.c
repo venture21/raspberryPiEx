@@ -26,7 +26,7 @@ struct Data data;
 
 //LED자원을 관리하기 위해 mutex변수를 선언한다.
 pthread_mutex_t led_lock;
-
+pthread_mutex_t hc04_lock;
 
 void error_handling(char *message)
 {
@@ -56,17 +56,34 @@ void ledControl(int value)
 
 void* ledFunction(void *arg)
 {
-	int clnt_sock = *((int*)arg);
-	int str_len = 0, i;
 	pinMode(LED, OUTPUT);
 
-	while ((str_len = read(clnt_sock, &data, sizeof(data))) != 0)
+	while (!data.endFlag)
 	{
 		ledControl(data.led_Value);
 		printf("led=%d\n", data.led_Value);
 		usleep(200000);
 	}
 
+}
+
+void* userThread(void *arg)
+{
+	int clnt_sock = *((int*)arg);
+	int str_len = 0, i;
+	pthread_t t_id;
+	
+	pthread_create(&t_id, NULL, ledFunction, 0);
+	//	HC04Function
+
+	while ((str_len = read(clnt_sock, &data, sizeof(data))) != 0)
+	{
+		printf("data.led_Value=%d\n", data.led_Value);
+	}
+	data.endFlag = 1;
+
+	pthread_detach(t_id);
+	printf("userThread is end\n");
 	pthread_mutex_lock(&mutx);
 	for (i = 0; i < clnt_cnt; i++)   // remove disconnected client
 	{
@@ -80,8 +97,9 @@ void* ledFunction(void *arg)
 	clnt_cnt--;
 	pthread_mutex_unlock(&mutx);
 	close(clnt_sock);
-}
 
+
+}
 static void sigHandler(int signum)
 {
 	printf("sigHanlder\n");
@@ -98,13 +116,12 @@ int main(int argc, char **argv)
 	struct sockaddr_in serv_adr, clnt_adr;
 	int clnt_adr_sz;
 	struct Data data, buf;
-
+	data.endFlag = 0;
 	//Init
 	wiringPiSetup();
 
 	signal(SIGINT, sigHandler);
 	
-
 	// STEP 1.
 	serv_sock = socket(PF_INET, SOCK_STREAM, 0);
 	memset(&serv_adr, 0, sizeof(serv_adr));
@@ -132,7 +149,7 @@ int main(int argc, char **argv)
 		clnt_socks[clnt_cnt++] = clnt_sock;
 		pthread_mutex_unlock(&mutx);
 
-		pthread_create(&t_id, NULL, ledFunction, (void*)&clnt_sock);
+		pthread_create(&t_id, NULL, userThread, (void*)&clnt_sock);
 		pthread_detach(t_id);
 		printf("Connected client IP: %s \n", inet_ntoa(clnt_adr.sin_addr));
 	}
