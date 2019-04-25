@@ -161,6 +161,7 @@ void* userThread(void *arg)
 							// 남아있는 파일의 사이즈가 BUF_SIZE보다 큰 경우
 							write(clnt_sock, filebuf, BUF_SIZE);
 						}
+						printf("File Write is done\n");
 						fclose(fp);
 						break;
 			default:
