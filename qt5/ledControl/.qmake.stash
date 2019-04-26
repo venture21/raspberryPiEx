@@ -1,0 +1,39 @@
+QMAKE_CXX.INCDIRS = \
+    /usr/include/c++/4.9 \
+    /usr/include/arm-linux-gnueabihf/c++/4.9 \
+    /usr/include/c++/4.9/backward \
+    /usr/lib/gcc/arm-linux-gnueabihf/4.9/include \
+    /usr/local/include \
+    /usr/lib/gcc/arm-linux-gnueabihf/4.9/include-fixed \
+    /usr/include/arm-linux-gnueabihf \
+    /usr/include
+QMAKE_CXX.LIBDIRS = \
+    /usr/lib/gcc/arm-linux-gnueabihf/4.9 \
+    /usr/lib/arm-linux-gnueabihf \
+    /usr/lib \
+    /lib/arm-linux-gnueabihf \
+    /lib
+QMAKE_CXX.QT_COMPILER_STDCXX = 199711L
+QMAKE_CXX.QT_GCC_MAJOR_VERSION = 4
+QMAKE_CXX.QT_GCC_MINOR_VERSION = 9
+QMAKE_CXX.QT_GCC_PATCH_VERSION = 2
+QMAKE_CXX.COMPILER_MACROS = \
+    QT_COMPILER_STDCXX \
+    QT_GCC_MAJOR_VERSION \
+    QT_GCC_MINOR_VERSION \
+    QT_GCC_PATCH_VERSION
+QMAKE_DEFAULT_INCDIRS = \
+    /usr/include/c++/6 \
+    /usr/include/arm-linux-gnueabihf/c++/6 \
+    /usr/include/c++/6/backward \
+    /usr/lib/gcc/arm-linux-gnueabihf/6/include \
+    /usr/local/include \
+    /usr/lib/gcc/arm-linux-gnueabihf/6/include-fixed \
+    /usr/include/arm-linux-gnueabihf \
+    /usr/include
+QMAKE_DEFAULT_LIBDIRS = \
+    /usr/lib/gcc/arm-linux-gnueabihf/6 \
+    /usr/lib/arm-linux-gnueabihf \
+    /usr/lib \
+    /lib/arm-linux-gnueabihf \
+    /lib

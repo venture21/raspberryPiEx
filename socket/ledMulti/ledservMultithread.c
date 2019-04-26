@@ -225,6 +225,8 @@ int main(int argc, char **argv)
 
 	pthread_create(&t_id[0], NULL, ledFunction, 0);
 	pthread_create(&t_id[1], NULL, hc04Function, 0);
+	pthread_detach(t_id[0]);
+	pthread_detach(t_id[1]);
 
 	while (1)
 	{
@@ -241,8 +243,7 @@ int main(int argc, char **argv)
 		printf("Connected client IP: %s \n", inet_ntoa(clnt_adr.sin_addr));
 	}
 	
-	pthread_detach(t_id[0]);
-	pthread_detach(t_id[1]);
+
 
 	close(serv_sock);
 	return 0;
